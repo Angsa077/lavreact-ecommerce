@@ -1,5 +1,7 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 //icons
 import { FiMenu } from 'react-icons/fi';
@@ -18,6 +20,32 @@ const Master = () => {
     const toggleProfile = () => {
         setIsProfileOpen(!isProfileOpen);
     };
+
+    const handleLogout = () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2196F3',
+            cancelButtonColor: '#F44336',
+            confirmButtonText: 'Yes, logout!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.post('http://localhost:8000/api/logout')
+                    .then(res => {
+                        localStorage.removeItem('token')
+                        localStorage.removeItem('name')
+                        localStorage.removeItem('email')
+                        localStorage.removeItem('photo')
+                        localStorage.removeItem('phone')
+                        window.location.reload();
+                    }).catch(errors => {
+
+                    })
+            }
+        })
+    }
 
     return (
         <>
@@ -67,6 +95,7 @@ const Master = () => {
                                     </p>
                                     <button
                                         className='bg-blue-500 px-3 py-1 mt-3 rounded-lg text-white hover:scale-105 hover:font-bold'
+                                        onClick={handleLogout}
                                     >
                                         Logout
                                     </button>
