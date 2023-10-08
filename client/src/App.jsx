@@ -1,25 +1,22 @@
-import React from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import React, { useState } from 'react'
 
-import About from './components/About';
-import Contact from './components/Contact';
-import Home from './components/Home';
-import Navbar from './components/Navbar';
 import './App.css';
+import { RouterProvider } from 'react-router-dom';
+import ProjectRouter from './components/router/ProjectRouter';
+import PublicRouter from './components/router/PublicRouter';
 
 function App() {
+  const [auth, setAuth] = useState(false);
+
   return (
     <>
-      <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-      </Router>
+      {
+        auth ?
+          <RouterProvider router={ProjectRouter} /> :
+          <RouterProvider router={PublicRouter} />
+      }
     </>
-  )
+  );
 }
 
 export default App
