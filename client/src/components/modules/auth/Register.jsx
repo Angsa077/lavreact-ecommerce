@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import axiosClient from "../../../axios-client";
 
-const Login = () => {
+const Register = () => {
     const [input, setInput] = useState({
+        name: '',
         email: '',
-        password: ''
+        password: '',
+        password_confirmation: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -17,10 +19,10 @@ const Login = () => {
         }))
     }
 
-    const handleLogin = (e) => {
+    const handleRegister = (e) => {
         e.preventDefault();
         setIsLoading(true)
-        axiosClient.post('/login',  input)
+        axiosClient.post('/register', input)
             .then(res => {
                 localStorage.setItem('ACCESS_TOKEN', res.data.token)
                 setIsLoading(false)
@@ -36,9 +38,23 @@ const Login = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-blue-500">
             <div className="w-full p-16 bg-white max-w-sm rounded-lg shadow-md border-t-2">
-                <h2 className="text-2xl text-center font-bold mb-2">Login</h2>
-                <form className="space-y-4" onSubmit={handleLogin}>
-                    <div className="">
+                <h2 className="text-2xl text-center font-bold mb-2">Register</h2>
+                <form className="space-y-4" onSubmit={handleRegister}>
+                    <div>
+                        <label htmlFor="email" className="block text-gray-700">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={input.name}
+                            onChange={handleInput}
+                            placeholder="example@mail.com"
+                            className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.name ? 'border-red-500' : ''
+                                }`}
+                        />
+                        <p>{errors.name && <span className="text-red-500 text-xs">{errors.name}</span>}</p>
+                    </div>
+
+                    <div>
                         <label htmlFor="email" className="block text-gray-700">Email</label>
                         <input
                             type="email"
@@ -51,6 +67,7 @@ const Login = () => {
                         />
                         <p>{errors.email && <span className="text-red-500 text-xs">{errors.email}</span>}</p>
                     </div>
+
                     <div>
                         <label htmlFor="password" className="block text-gray-700">Password</label>
                         <input
@@ -63,6 +80,20 @@ const Login = () => {
                                 }`}
                         />
                         <p>{errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}</p>
+                    </div>
+
+                    <div>
+                        <label htmlFor="password_confirmation" className="block text-gray-700">Confirm Password</label>
+                        <input
+                            type="password"
+                            id="password_confirmation"
+                            value={input.password_confirmation}
+                            onChange={handleInput}
+                            placeholder="********"
+                            className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.password_confirmation ? 'border-red-500' : ''
+                                }`}
+                        />
+                        <p>{errors.password_confirmation && <span className="text-red-500 text-xs">{errors.password_confirmation}</span>}</p>
                     </div>
 
                     {isLoading &&
@@ -78,9 +109,9 @@ const Login = () => {
                     }
 
                     <div className='flex justify-start'>
-                        <p className='text-xs mx-1'>Don't have an account?</p>
-                        <Link to="/register">
-                            <p className='text-blue-500 text-xs'>Register</p>
+                        <p className='text-xs mx-1'>Have an account?</p>
+                        <Link to="/login">
+                            <p className='text-blue-500 text-xs'>Login</p>
                         </Link>
                     </div>
                 </form>
@@ -89,4 +120,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default Register

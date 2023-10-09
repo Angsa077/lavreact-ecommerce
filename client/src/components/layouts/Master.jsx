@@ -1,17 +1,24 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { useState } from "react";
-import axios from 'axios';
+import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
+import axiosClient from "../../axios-client";
 
 //icons
 import { FiMenu } from 'react-icons/fi';
 import { LuLayoutDashboard } from 'react-icons/lu';
 import { TfiUser } from 'react-icons/tfi';
+import { useStateContext } from "../contexts/ContextProvider";
 
 const Master = () => {
+    const { user, token, setUser, setToken } = useStateContext();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const location = useLocation();
+    const navigate = useNavigate();
+    const locations = useLocation();
+
+    if (!token) {
+        return <Navigate to="/login" />
+    }
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -32,20 +39,29 @@ const Master = () => {
             confirmButtonText: 'Yes, logout!'
         }).then((result) => {
             if (result.isConfirmed) {
-                axios.post('http://localhost:8000/api/logout')
+                axiosClient.post('/logout')
                     .then(res => {
-                        localStorage.removeItem('token')
-                        localStorage.removeItem('name')
-                        localStorage.removeItem('email')
-                        localStorage.removeItem('photo')
-                        localStorage.removeItem('phone')
-                        window.location.reload();
-                    }).catch(errors => {
-
+                        setUser({})
+                        setToken(null)
+                        navigate('/login')
+                    })
+                    .catch(err => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: err.response.data.message,
+                        })
                     })
             }
         })
     }
+
+    useEffect(() => {
+        axiosClient.get('/user')
+            .then(({ data }) => {
+                setUser(data)
+            })
+    }, [])
 
     return (
         <>
@@ -58,11 +74,6 @@ const Master = () => {
                                 onClick={toggleMenu}
                                 className="inline-flex items-center p-2 text-sm text-blue-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                                {isMenuOpen ? (
-                                    <span className="sr-only">Close sidebar</span>
-                                ) : (
-                                    <span className="sr-only">Open sidebar</span>
-                                )}
                                 <FiMenu className="w-6 h-6" />
                             </button>
                             <Link to={'/'} className="flex ml-2 md:mr-24">
@@ -88,10 +99,10 @@ const Master = () => {
                             <div className={`z-50 ${isProfileOpen ? 'translate-x-0 mr-2' : 'translate-x-full'} my-4 bg-white rounded-md shadow-md border-t-2 absolute right-0 transition-transform`}>
                                 <div className="px-4 text-right my-3">
                                     <p className="text-gray-800 font-semibold">
-                                        John Doe
+                                        {user.name}
                                     </p>
                                     <p className="text-gray-600">
-                                        example@mail.com
+                                        {user.email}
                                     </p>
                                     <button
                                         className='bg-blue-500 px-3 py-1 mt-3 rounded-lg text-white hover:scale-105 hover:font-bold'
@@ -108,7 +119,7 @@ const Master = () => {
 
             {/* Sidebar */}
             <aside
-                className={`fixed top-10 left-0 z-40 w-64 h-screen pt-7 transition-transform ${isMenuOpen ? '-translate-x-0' : '-translate-x-full'} text-white shadow-md bg-blue-500`}
+                className={`fixed top-10 left-0 z-40 w-64 h-screen pt-7 transition-transform ${isMenuOpen ? '-translate-x-0 sm:-translate-x-full' : '-translate-x-full sm:-translate-x-0'} text-white shadow-md bg-blue-500`}
             >
                 <div className="h-full px-3 pb-4 overflow-y-auto">
                     <ul className="space-y-2 font-medium">
@@ -117,7 +128,7 @@ const Master = () => {
                             { label: 'Dashboard', to: '/', icons: <LuLayoutDashboard /> },
                             { label: 'Users', to: '/users', icons: <TfiUser /> },
                         ].map((item, index) => (
-                            <li key={index} className={`transform transition-all hover:scale-105 hover:font-bold hover:bg-white hover:text-blue-500 hover:rounded-md ${location.pathname === item.to ? 'bg-white text-blue-500 rounded-md' : ''}`}>
+                            <li key={index} className={`transform transition-all hover:scale-105 hover:font-bold hover:bg-white hover:text-blue-500 hover:rounded-md ${locations.pathname === item.to ? 'bg-white text-blue-500 rounded-md' : ''}`}>
                                 <Link to={item.to} className="flex items-center ml-3 gap-3 py-2">
                                     {item.icons}
                                     <span>{item.label}</span>
@@ -129,7 +140,7 @@ const Master = () => {
             </aside>
 
             {/* Main */}
-            <main className={`transition-transform ${isMenuOpen ? 'p-4 sm:ml-64 mt-5 ' : 'p-4 mt-5'}`}>
+            <main className={`transition-transform p-4 mt-5 ${isMenuOpen ? '' : 'sm:ml-64'}`}>
                 <div className="shadow-md border-2 p-4 mt-10">
                     <Outlet />
                 </div>

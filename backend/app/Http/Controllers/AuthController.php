@@ -5,40 +5,46 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\AuthRequest;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    /**
-     * @param AuthRequest $request
-     * @return JsonResponse
-     */
-    final public function login(AuthRequest $request): JsonResponse
+    public function register(RegisterRequest $request)
     {
-        $user = (new User())->getUserByEmailOrPhone($request->all());
-
-        if ($user && Hash::check($request->input('password'), $user->password)) {
-            $user_data['token'] = $user->createToken($user->email)->plainTextToken;
-            $user_data['name'] = $user->name;
-            $user_data['phone'] = $user->phone;
-            $user_data['photo'] = $user->photo;
-            $user_data['email'] = $user->email;
-            return response()->json($user_data);
-        }
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials are incorrect.'],
+        $data = $request->validated();
+        /** @var \App\Models\User $user */
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'status' => 2,
         ]);
+
+        $token = $user->createToken('main')->plainTextToken;
+
+        return response(compact('user', 'token'));
     }
 
-    /**
-     * @return JsonResponse
-     */
-
-    final public function logout(): JsonResponse
+    public function login(LoginRequest $request)
     {
-        auth()->user()->tokens()->delete();
-        return response()->json(['message' => 'Successfully logged out']);
+        $credentials = $request->validated();
+        if (!Auth::attempt($credentials)) {
+            return response(['message' => 'Invalid Password'], 422);
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $token = $user->createToken('main')->plainTextToken;
+        return response(compact('user', 'token'));
+    }
+
+    public function logout(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $user->currentAccessToken()->delete();
+        return response(['message' => 'Successfully logged out'], 200);
     }
 }
