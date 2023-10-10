@@ -21,7 +21,7 @@ class CategoryListResource extends JsonResource
             'slug' => $this->slug,
             'serial' => $this->serial,
             'status' => $this->status == 1 ? 'Active' : 'Inactive',
-            'photo' => $this->photo != null ? url(Category::IMAGE_CATEGORY.'/'.$this->photo) : url(Category::IMAGE_DEFAULT.'/'.'default.jpg'),
+            'photo' => $this->photo != null ? url(Category::IMAGE_CATEGORY.'/'.$this->photo) : url(Category::IMAGE_DEFAULT.'/'.'default.webp'),
             'created_by' => $this->user->name,
             'created_at' => $this->created_at->toDayDateTimeString(),
             'updated_at' => $this->created_at != $this->updated_at ? $this->updated_at->toDayDateTimeString() : 'Not updated yet'

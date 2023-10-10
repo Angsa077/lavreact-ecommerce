@@ -15,10 +15,18 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('user')->get();
-        return response()->json(['data' => CategoryListResource::collection($categories)], 200);
+        $perPage = $request->input('per_page', 5);
+        $categories = Category::with('user')->orderBy('id', 'asc')->paginate($perPage);
+        return response()->json([
+            'data' => CategoryListResource::collection($categories->items()),
+            'meta' => [
+                'current_page' => $categories->currentPage(),
+                'per_page' => $categories->perPage(),
+                'total' => $categories->total(),
+            ],
+        ], 200);
     }
 
     /**
