@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import BreadCrumb from '../../partials/BreadCrumb';
 import { BiCommentAdd } from 'react-icons/bi'
 import axiosClient from '../../../axios-client';
+import { Toaster, toast } from 'react-hot-toast';
 
 const AddCategory = () => {
     const [input, setInput] = useState({
@@ -36,7 +37,16 @@ const AddCategory = () => {
         try {
             await axiosClient.post('/category', input);
             setIsLoading(false)
-            window.location.reload()
+            toast.success('Successfully added!')
+            setIsOpenModal(false)
+            setInput({
+                name: '',
+                slug: '',
+                serial: '',
+                status: 1,
+                description: '',
+                photo: null,
+            })
         } catch (errors) {
             setIsLoading(false)
             if (errors.response.status == 422) {
@@ -158,7 +168,7 @@ const AddCategory = () => {
 
                         </div>
 
-                        <div className='px-8 mb-4'>
+                        <div className='px-8 mb-5 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-8'>
                             {isLoading &&
                                 <button className="bg-blue-500 text-white p-1 px-3 font-bold text-md rounded-md">
                                     <svg aria-hidden="true" role="status" className="inline w-4 h-4 mr-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -173,6 +183,11 @@ const AddCategory = () => {
                         </div>
                     </form>
                 )}
+
+                <Toaster
+                    position="bottom-right"
+                    reverseOrder={false}
+                />
             </div >
         </>
     )

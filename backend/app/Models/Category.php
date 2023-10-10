@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Category extends Model
 {
+    public const IMAGE_CATEGORY = 'images/category';
+    public const IMAGE_DEFAULT = 'images';
     use HasFactory;
     protected $table = 'categories';
     protected $fillable = [
@@ -18,4 +21,9 @@ class Category extends Model
         'status',
         'user_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

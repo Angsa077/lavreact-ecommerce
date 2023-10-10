@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RequestCategoryStore;
+use App\Http\Resources\CategoryListResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +17,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::with('user')->get();
+        return response()->json(['data' => CategoryListResource::collection($categories)], 200);
     }
 
     /**
@@ -29,8 +32,10 @@ class CategoryController extends Controller
 
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('images/category'), $fileName);
+                $fileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+                $image = Image::make($file);
+                $image->encode('webp', 75);
+                $image->save(public_path('images/category/' . $fileName));
                 $data['photo'] = $fileName;
             }
 
