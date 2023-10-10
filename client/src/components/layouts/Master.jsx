@@ -2,16 +2,19 @@ import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-d
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import axiosClient from "../../axios-client";
+import { useStateContext } from "../contexts/ContextProvider";
 
 //icons
-import { FiMenu } from 'react-icons/fi';
+import { FiMenu, FiBox } from 'react-icons/fi';
 import { LuLayoutDashboard } from 'react-icons/lu';
 import { TfiUser } from 'react-icons/tfi';
-import { useStateContext } from "../contexts/ContextProvider";
+import { IoMdArrowDropright, IoMdArrowDropdown } from 'react-icons/io';
+import { FaCircle } from 'react-icons/fa';
 
 const Master = () => {
     const { user, token, setUser, setToken } = useStateContext();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isSubMenuOpen, setIsSubMenuOpen] = useState(null);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const navigate = useNavigate();
     const locations = useLocation();
@@ -22,6 +25,10 @@ const Master = () => {
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    const toggleSubMenu = (index) => {
+        setIsSubMenuOpen(isSubMenuOpen === index ? null : index);
     };
 
     const toggleProfile = () => {
@@ -118,21 +125,64 @@ const Master = () => {
             </nav>
 
             {/* Sidebar */}
-            <aside
-                className={`fixed top-10 left-0 z-40 w-64 h-screen pt-7 transition-transform ${isMenuOpen ? '-translate-x-0 sm:-translate-x-full' : '-translate-x-full sm:-translate-x-0'} text-white shadow-md bg-blue-500`}
-            >
+            <aside className={`fixed top-10 left-0 z-40 w-64 h-screen pt-7 transition-transform ${isMenuOpen ? '-translate-x-0 sm:-translate-x-full' : '-translate-x-full sm:-translate-x-0'
+                } text-white shadow-md bg-blue-500`} >
                 <div className="h-full px-3 pb-4 overflow-y-auto">
                     <ul className="space-y-2 font-medium">
                         {/* sidebar items */}
                         {[
                             { label: 'Dashboard', to: '/', icons: <LuLayoutDashboard /> },
                             { label: 'Users', to: '/users', icons: <TfiUser /> },
+                            {
+                                label: 'Category',
+                                icons: <FiBox />,
+                                arrowDropdownRight: <IoMdArrowDropright />,
+                                arrowDropdownDown: <IoMdArrowDropdown />,
+                                submenu: [
+                                    { label: 'Category', to: '/category', icons: <FaCircle /> },
+                                    { label: 'Add Category', to: '/category/create', icons: <FaCircle /> },
+                                ],
+                            },
                         ].map((item, index) => (
-                            <li key={index} className={`transform transition-all hover:scale-105 hover:font-bold hover:bg-white hover:text-blue-500 hover:rounded-md ${locations.pathname === item.to ? 'bg-white text-blue-500 rounded-md' : ''}`}>
-                                <Link to={item.to} className="flex items-center ml-3 gap-3 py-2">
-                                    {item.icons}
-                                    <span>{item.label}</span>
-                                </Link>
+                            <li
+                                key={index}
+                                className={`transform transition-all hover:scale-105 hover:font-bold hover:bg-white hover:text-blue-500 hover:rounded-md ${locations.pathname === item.to
+                                    ? 'bg-white text-blue-500 rounded-md' : ''}`}>
+                                {item.submenu ? (
+                                    <button
+                                        onClick={() => {
+                                            toggleSubMenu(index);
+                                        }}
+                                        className="flex items-center ml-3 gap-3 py-2 w-full focus:outline-none"
+                                    >
+                                        {item.icons}
+                                        <span>{item.label}</span>
+                                        <p className="ml-auto mx-5">
+                                            {isSubMenuOpen === index ? item.arrowDropdownDown : item.arrowDropdownRight}
+                                        </p>
+
+                                    </button>
+                                ) : (
+                                    <Link to={item.to} className="flex items-center ml-3 gap-3 py-2 w-full">
+                                        {item.icons}
+                                        <span>{item.label}</span>
+                                    </Link>
+                                )}
+                                {item.submenu && isSubMenuOpen === index && (
+                                    <ul>
+                                        {item.submenu.map((subItem, subIndex) => (
+                                            <li
+                                                key={subIndex}
+                                                className={`hover:bg-blue-800 hover:text-white  ${locations.pathname === subItem.to ? 'bg-white text-blue-500 rounded-md' : ''}`}
+                                            >
+                                                <Link to={subItem.to} className="flex items-center ml-10 gap-3 py-2">
+                                                    <p className="text-xs">{subItem.icons}</p>
+                                                    <span className="text-sm">{subItem.label}</span>
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </li>
                         ))}
                     </ul>
@@ -141,7 +191,7 @@ const Master = () => {
 
             {/* Main */}
             <main className={`transition-transform p-4 mt-5 ${isMenuOpen ? '' : 'sm:ml-64'}`}>
-                <div className="shadow-md border-2 p-4 mt-10">
+                <div className="p-4 mt-10">
                     <Outlet />
                 </div>
             </main>

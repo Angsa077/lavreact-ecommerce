@@ -1,9 +1,9 @@
 import React from 'react'
-import {Helmet} from "react-helmet";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const BreadCrumb = (props) => {
     return (
-        <>
+        <HelmetProvider>
             <Helmet>
                 <title>{props.title} | E Commerce</title>
             </Helmet>
@@ -23,7 +23,7 @@ const BreadCrumb = (props) => {
                     </li>
                 </ol>
             </div>
-        </>
+        </HelmetProvider>
     )
 }
 
