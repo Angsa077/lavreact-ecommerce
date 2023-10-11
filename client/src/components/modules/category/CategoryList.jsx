@@ -13,10 +13,10 @@ import CategoryPhotoModal from '../../partials/modals/CategoryPhotoModal';
 const CategoryList = () => {
     const [input, setInput] = useState({
         search: '',
-        order_by: '',
-        direction: '',
+        order_by: 'serial',
+        direction: 'asc',
+        per_page: 5
     });
-
     const [itemsCountPerPage, setItemsCountPerPage] = useState(0);
     const [totalItemsCount, setTotalItemsCount] = useState(1);
     const [startFrom, setStartFrom] = useState(1);
@@ -24,9 +24,10 @@ const CategoryList = () => {
     const [modalShow, setModalShow] = useState(false);
     const [modalPhoto, setModalPhoto] = useState('');
     const [categories, setCategories] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const getCategories = (pageNumber) => {
-        axiosClient.get(`/category?page=${pageNumber}`)
+    const getCategories = (pageNumber=1) => {
+        axiosClient.get(`/category?page=${pageNumber}&search=${input.search}&order_by=${input.order_by}&direction=${input.direction}&per_page=${input.per_page}`)
             .then(res => {
                 setCategories(res.data.data);
                 setItemsCountPerPage(res.data.meta.per_page);
@@ -62,7 +63,7 @@ const CategoryList = () => {
             <div className='border border-slate-100 shadow-md mt-3'>
                 <div className='flex justify-between items-center border py-1 bg-gray-50'>
                     <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Category</h2>
-                    <div className='mx-5 hover:scale-105'>
+                    <div className='mx-5 hover:scale-105 block sm:hidden'>
                         <Link
                             to='/category/create'
                             className='rounded-xl text-sm py-2 px-2 font-bold border shadow-md bg-blue-500 text-white'
@@ -72,22 +73,23 @@ const CategoryList = () => {
                     </div>
                 </div>
 
-                <div className='block sm:flex space-x-5 mx-2 sm:mx-5 mt-5 sm:mt-3 space-y-2'>
-                    <div className='flex items-center mt-2 ml-5 sm:ml-0'>
+                <div className='block sm:grid grid-cols-4 gap-4 mt-3'>
+                    <div className='grid grid-cols-1 mx-5'>
+                        <p className='text-sm font-semibold text-blue-500'>Search</p>
                         <input
                             type="text"
-                            className="w-full rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none placeholder:text-blue-500 placeholder:text-center"
-                            placeholder="Search . . ."
+                            className="py-1 text-sm rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none placeholder:text-blue-500"
+                            placeholder="Enter keyword"
                             id='search'
                             value={input.search}
                             onChange={handleInput}
                         />
                     </div>
-                    <div className='block sm:flex items-center sm:space-x-2'>
+                    <div className='grid grid-cols-1 mx-5'>
                         <p className='text-sm font-semibold text-blue-500'>Order by</p>
                         <select
                             type="text"
-                            className="w-full sm:w-1/2 text-blue-500 rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                            className="py-1 text-sm text-blue-500 rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
                             id='order_by'
                             value={input.order_by}
                             onChange={handleInput}
@@ -99,21 +101,40 @@ const CategoryList = () => {
                             <option value="updated_at">Updated At</option>
                         </select>
                     </div>
-                    <div className='block sm:flex items-center sm:space-x-2'>
-                        <p className='text-sm font-semibold text-blue-500'>Order Direction</p>
-                        <select
-                            type="text"
-                            className="w-full sm:w-3/4 text-blue-500 rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
-                            id='direction'
-                            value={input.direction}
-                            onChange={handleInput}
-                        >
-                            <option value="name">ASC</option>
-                            <option value="created_at">DESC</option>
-                        </select>
+                    <div className='grid grid-cols-1 mx-5'>
+                        <div className='grid grid-cols-2 space-x-5'>
+                            <div className='mr-5'>
+                                <p className='text-sm font-semibold text-blue-500'>Order Direction</p>
+                                <select
+                                    type="text"
+                                    className="w-full py-1 text-sm text-blue-500 rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                    id='direction'
+                                    value={input.direction}
+                                    onChange={handleInput}
+                                >
+                                    <option value="asc">ASC</option>
+                                    <option value="desc">DESC</option>
+                                </select>
+                            </div>
+                            <div>
+                                <p className='text-sm font-semibold text-blue-500'>Per Page</p>
+                                <select
+                                    type="text"
+                                    className="w-full py-1 text-sm text-blue-500 rounded-md border border-blue-500 shadow-md focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                                    id='per_page'
+                                    value={input.per_page}
+                                    onChange={handleInput}
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={15}>15</option>
+                                    <option value={20}>20</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div className='flex items-center'>
-                        <button type='button' className='w-full px-5 bg-blue-500 text-white rounded-md mt-3 sm:mt-0 shadow-md hover:scale-105' onClick={getCategories}>Search</button>
+                    <div className='grid grid-cols-1 mt-3 sm:mt-5 mx-5 hover:scale-105'>
+                        <button type='button' className='py-1 text-sm bg-blue-500 text-white rounded-md border border-blue-500 shadow-md font-bold' onClick={()=>getCategories(1)}>Search</button>
                     </div>
                 </div>
 
@@ -188,8 +209,16 @@ const CategoryList = () => {
                     </div>
                 </div>
 
-                <div className='flex justify-center px-5 mb-5'>
-                    <div className=''>
+                <div className='flex justify-center sm:justify-between px-5 mb-5'>
+                    <div className='hover:scale-105 hidden sm:flex'>
+                        <Link
+                            to='/category/create'
+                            className='rounded-xl text-sm py-2 px-2 font-bold border shadow-md bg-blue-500 text-white'
+                        >
+                            Add New
+                        </Link>
+                    </div>
+                    <div>
                         <Pagination
                             activePage={activePage}
                             itemsCountPerPage={itemsCountPerPage}

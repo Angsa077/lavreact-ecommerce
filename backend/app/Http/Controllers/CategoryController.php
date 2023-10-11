@@ -18,7 +18,14 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
-        $categories = Category::with('user')->orderBy('serial', 'asc')->paginate($perPage);
+        $search = $request->input('search', '');
+        $order_by = $request->input('order_by', 'serial');
+        $direction = $request->input('direction', 'asc');
+        $categories = Category::where('name', 'like', '%' . $search . '%')
+            ->with('user')
+            ->orderBy($order_by, $direction)
+            ->paginate($perPage);
+
         return response()->json([
             'data' => CategoryListResource::collection($categories->items()),
             'meta' => [
