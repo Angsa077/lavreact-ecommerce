@@ -18,13 +18,14 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
-        $categories = Category::with('user')->orderBy('id', 'asc')->paginate($perPage);
+        $categories = Category::with('user')->orderBy('serial', 'asc')->paginate($perPage);
         return response()->json([
             'data' => CategoryListResource::collection($categories->items()),
             'meta' => [
                 'current_page' => $categories->currentPage(),
                 'per_page' => $categories->perPage(),
                 'total' => $categories->total(),
+                'from' => $categories->firstItem(),
             ],
         ], 200);
     }
