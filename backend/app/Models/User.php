@@ -13,6 +13,9 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    
+    public const IMAGE_USER = 'images/users';
+    public const IMAGE_DEFAULT = 'images';
     use HasApiTokens, HasFactory, Notifiable;
 
     /**

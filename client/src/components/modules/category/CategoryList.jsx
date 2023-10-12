@@ -9,6 +9,10 @@ import { IoTrashBinSharp } from 'react-icons/io5'
 import { MdEdit } from 'react-icons/md'
 import { AiOutlineEye } from 'react-icons/ai'
 import CategoryPhotoModal from '../../partials/modals/CategoryPhotoModal';
+import CategoryDetailsModal from '../../partials/modals/CategoryDetailsModal';
+import Swal from 'sweetalert2';
+import Loader from '../../partials/miniComponent/Loader';
+import NoDataFound from '../../partials/miniComponent/NoDataFound';
 
 const CategoryList = () => {
     const [input, setInput] = useState({
@@ -21,12 +25,17 @@ const CategoryList = () => {
     const [totalItemsCount, setTotalItemsCount] = useState(1);
     const [startFrom, setStartFrom] = useState(1);
     const [activePage, setActivePage] = useState(1);
+    const [categories, setCategories] = useState([]);
+
     const [modalShow, setModalShow] = useState(false);
     const [modalPhoto, setModalPhoto] = useState('');
-    const [categories, setCategories] = useState([]);
+    const [detailsModalShow, setDetailsModalShow] = useState(false);
+    const [detailsCategory, setDetailsCategory] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState([]);
 
-    const getCategories = (pageNumber=1) => {
+    const getCategories = (pageNumber = 1) => {
+        setIsLoading(true);
         axiosClient.get(`/category?page=${pageNumber}&search=${input.search}&order_by=${input.order_by}&direction=${input.direction}&per_page=${input.per_page}`)
             .then(res => {
                 setCategories(res.data.data);
@@ -34,9 +43,11 @@ const CategoryList = () => {
                 setStartFrom(res.data.meta.from);
                 setTotalItemsCount(res.data.meta.total);
                 setActivePage(res.data.meta.current_page);
+                setIsLoading(false);
             })
             .catch(error => {
                 console.error(error);
+                setIsLoading(false);
             });
     }
 
@@ -44,9 +55,50 @@ const CategoryList = () => {
         setModalPhoto(photo);
         setModalShow(true);
     }
-
     const closeModal = () => {
         setModalShow(false);
+    }
+
+    const handleDetailsModal = (category) => {
+        setDetailsCategory(category);
+        setDetailsModalShow(true);
+    };
+    const closeDetailsModal = () => {
+        setDetailsModalShow(false);
+    };
+
+    const handleCategoryDelete = (id) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#2196F3',
+            cancelButtonColor: '#F44336',
+            confirmButtonText: 'Yes, Delete!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setIsLoading(true)
+                axiosClient.delete(`/category/${id}`)
+                    .then(res => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: res.data.message,
+                        })
+                        getCategories()
+                        setIsLoading(false)
+                    })
+                    .catch(err => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: err.response.data.message,
+                        })
+                        setIsLoading(false)
+                    })
+            }
+        })
     }
 
     const handleInput = (e) => {
@@ -84,6 +136,7 @@ const CategoryList = () => {
                             value={input.search}
                             onChange={handleInput}
                         />
+                        <p>{errors.search && <span className="text-red-500 text-xs">{errors.search}</span>}</p>
                     </div>
                     <div className='grid grid-cols-1 mx-5'>
                         <p className='text-sm font-semibold text-blue-500'>Order by</p>
@@ -100,6 +153,7 @@ const CategoryList = () => {
                             <option value="created_at">Created At</option>
                             <option value="updated_at">Updated At</option>
                         </select>
+                        <p>{errors.order_by && <span className="text-red-500 text-xs">{errors.order_by}</span>}</p>
                     </div>
                     <div className='grid grid-cols-1 mx-5'>
                         <div className='grid grid-cols-2 space-x-5'>
@@ -115,6 +169,7 @@ const CategoryList = () => {
                                     <option value="asc">ASC</option>
                                     <option value="desc">DESC</option>
                                 </select>
+                                <p>{errors.direction && <span className="text-red-500 text-xs">{errors.direction}</span>}</p>
                             </div>
                             <div>
                                 <p className='text-sm font-semibold text-blue-500'>Per Page</p>
@@ -130,84 +185,114 @@ const CategoryList = () => {
                                     <option value={15}>15</option>
                                     <option value={20}>20</option>
                                 </select>
+                                <p>{errors.per_page && <span className="text-red-500 text-xs">{errors.per_page}</span>}</p>
                             </div>
                         </div>
                     </div>
                     <div className='grid grid-cols-1 mt-3 sm:mt-5 mx-5 hover:scale-105'>
-                        <button type='button' className='py-1 text-sm bg-blue-500 text-white rounded-md border border-blue-500 shadow-md font-bold' onClick={()=>getCategories(1)}>Search</button>
+                        <button type='button' className='py-1 text-sm bg-blue-500 text-white rounded-md border border-blue-500 shadow-md font-bold' onClick={() => getCategories(1)}>Search</button>
                     </div>
                 </div>
 
-                <div className="relative p-5">
-                    <div className="overflow-x-auto max-w-full">
-                        <table className='table-auto w-full border rounded-xl shadow-md hover:shadow-lg  text-black'>
-                            <thead className='text-xs sm:text-sm uppercase bg-blue-500 text-white'>
-                                <tr className=''>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-start">SL</th>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-start">Name / Slug</th>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-start">Serial / Status</th>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Photo</th>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Created By</th>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Date Time</th>
-                                    <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                {categories.map((category, index) => (
-                                    <tr key={index} className='text-xs sm:text-sm bg-white border-b  hover:bg-gray-50'>
-                                        <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">{startFrom + index}</td>
-                                        <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
-                                            <p>{category.name}</p>
-                                            <p>{category.slug}</p>
-                                        </td>
-                                        <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
-                                            <p className='text-blue-500'>Serial : {category.serial}</p>
-                                            <p className={`${category.status == 'Active' ? 'text-green-500' : 'text-red-500'}`}>Status : {category.status}</p>
-                                        </td>
-                                        <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
-                                            <span className='flex justify-center'>
-                                                <img
-                                                    onClick={() => handlePhotoModal(category.photo)}
-                                                    src={category.photo}
-                                                    alt={category.name}
-                                                    className='w-12 h-12 shadow-md hover:scale-105 cursor-zoom-in flex items-center rounded-md border border-white'
-                                                />
-                                            </span>
-                                        </td>
-                                        <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
-                                            <p>{category.created_by}</p>
-                                        </td>
-                                        <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
-                                            <p>{category.created_at}</p>
-                                            <p>{category.updated_at}</p>
-                                        </td>
-                                        <td scope="col" className="text-center">
-                                            <div className="flex flex-col sm:flex-row items-center justify-center">
-                                                <button className='rounded-full bg-white shadow-md p-1 text-blue-500 hover:scale-125 mx-1 my-1'>
-                                                    <AiOutlineEye />
-                                                </button>
-                                                <Link>
-                                                    <button className='rounded-full bg-white shadow-md p-1 text-yellow-300 hover:scale-125 mx-1 my-1'>
-                                                        <MdEdit />
-                                                    </button>
-                                                </Link>
-                                                <button className='rounded-full bg-white shadow-md p-1 text-red-500 hover:scale-125 mx-1 my-1'>
-                                                    <IoTrashBinSharp />
-                                                </button>
-                                            </div>
-                                        </td>
+                {isLoading ? (
+                    <div className='flex justify-center w-full'>
+                        <div className='w-1/4'>
+                            <Loader />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="relative p-5">
+                        <div className="overflow-x-auto max-w-full">
+                            <table className='table-auto w-full border rounded-xl shadow-md hover:shadow-lg  text-black'>
+                                <thead className='text-xs sm:text-sm uppercase bg-blue-500 text-white'>
+                                    <tr className=''>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-start">SL</th>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-start">Name / Slug</th>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-start">Serial / Status</th>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Photo</th>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Created By</th>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Date Time</th>
+                                        <th scope="col" className="px-2 py-1 sm:px-3 sm:py-2">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {categories.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="7" className="text-center">
+                                                <NoDataFound />
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        categories.map((category, index) => (
+                                            <tr key={index} className='text-xs sm:text-sm bg-white border-b  hover:bg-gray-50'>
+                                                <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">{startFrom + index}</td>
+                                                <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
+                                                    <p>{category.name}</p>
+                                                    <p>{category.slug}</p>
+                                                </td>
+                                                <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
+                                                    <p className='text-blue-500'>Serial : {category.serial}</p>
+                                                    <p className={`${category.status == 'Active' ? 'text-green-500' : 'text-red-500'}`}>Status : {category.status}</p>
+                                                </td>
+                                                <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
+                                                    <span className='flex justify-center'>
+                                                        <img
+                                                            onClick={() => handlePhotoModal(category.photo)}
+                                                            src={category.photo}
+                                                            alt={category.name}
+                                                            className='w-12 h-12 shadow-md hover:scale-105 cursor-zoom-in flex items-center rounded-md border border-white'
+                                                        />
+                                                    </span>
+                                                </td>
+                                                <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
+                                                    <p>{category.created_by}</p>
+                                                </td>
+                                                <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
+                                                    <p>{category.created_at}</p>
+                                                    <p>{category.updated_at}</p>
+                                                </td>
+                                                <td scope="col" className="text-center">
+                                                    <div className="flex flex-col sm:flex-row items-center justify-center">
+                                                        <button
+                                                            className='rounded-full bg-white shadow-md p-1 text-blue-500 hover:scale-125 mx-1 my-1'
+                                                            onClick={() => handleDetailsModal(category)}
+                                                        >
+                                                            <AiOutlineEye />
+                                                        </button>
+                                                        <Link to={`/category/edit/${category.id}`}>
+                                                            <button className='rounded-full bg-white shadow-md p-1 text-yellow-300 hover:scale-125 mx-1 my-1'>
+                                                                <MdEdit />
+                                                            </button>
+                                                        </Link>
+                                                        <button
+                                                            className='rounded-full bg-white shadow-md p-1 text-red-500 hover:scale-125 mx-1 my-1'
+                                                            onClick={() => handleCategoryDelete(category.id)}
+                                                        >
+                                                            <IoTrashBinSharp />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
 
-                        {modalShow && (
-                            <CategoryPhotoModal photoUrl={modalPhoto} onClose={closeModal} />
-                        )}
+                            {modalShow && (
+                                <CategoryPhotoModal photoUrl={modalPhoto} onClose={closeModal} />
+                            )}
 
+                            {detailsModalShow && (
+                                <CategoryDetailsModal
+                                    categoryDetails={detailsCategory}
+                                    onClose={closeDetailsModal}
+                                />
+                            )}
+
+                        </div>
                     </div>
-                </div>
+                )}
+
 
                 <div className='flex justify-center sm:justify-between px-5 mb-5'>
                     <div className='hover:scale-105 hidden sm:flex'>

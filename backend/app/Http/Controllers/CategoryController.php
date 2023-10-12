@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RequestCategoryStore;
+use App\Http\Requests\RequestCategoryUpdate;
+use App\Http\Resources\CategoryEditResource;
 use App\Http\Resources\CategoryListResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -46,13 +48,9 @@ class CategoryController extends Controller
             $data = $request->validated();
             $data['user_id'] = auth()->user()->id;
 
-            if ($request->hasFile('photo')) {
-                $file = $request->file('photo');
-                $fileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
-                $image = Image::make($file);
-                $image->encode('webp', 75);
-                $image->save(public_path('images/category/' . $fileName));
-                $data['photo'] = $fileName;
+            if ($request->has('photo')) {
+                $base64String = $request->input('photo');
+                $data['photo'] = $this->saveBase64Image($base64String);
             }
 
             $category = Category::create($data);
@@ -63,28 +61,54 @@ class CategoryController extends Controller
         }
     }
 
-
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        return response()->json(['data' => new CategoryEditResource($category)], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(RequestCategoryUpdate $request, string $id)
     {
-        //
+        try {
+            $category = Category::findOrFail($id);
+            $data = $request->validated();
+
+            if ($request->has('photo')) {
+                $base64String = $request->input('photo');
+                $data['photo'] = $this->saveBase64Image($base64String);
+            }
+
+            $category->update($data);
+            return response()->json(['message' => 'Category updated successfully', 'data' => $category], 200);
+        } catch (Exception $e) {
+            Log::error('Error updating category: ' . $e->getMessage());
+            return response()->json(['message' => 'Error updating category'], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        //
+        if (!empty($category->photo)) {
+            unlink(public_path('images/category/' . $category->photo));
+        }
+        $category->delete();
+        return response()->json(['message' => 'Category deleted successfully'], 200);
+    }
+
+    private function saveBase64Image($base64String)
+    {
+        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64String));
+        $fileName = time() . '.webp';
+        file_put_contents(public_path('images/category/' . $fileName), $imageData);
+        return $fileName;
     }
 }

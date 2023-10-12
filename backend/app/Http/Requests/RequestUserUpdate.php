@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RequestCategoryStore extends FormRequest
+class RequestUserUpdate extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +23,9 @@ class RequestCategoryStore extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:50',
-            'slug' => 'required|string|unique:categories,slug|min:3|max:100',
-            'description' => 'nullable|min:3|max:255',
-            'serial' => 'required|numeric',
-            'status' => 'required|numeric',
+            'email' => 'required|string|unique:users,email|min:3|max:50'. $this->id,
+            'phone' => 'required|string|min:3|max:50',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:1024',
         ];
     }
 }

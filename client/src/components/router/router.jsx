@@ -12,6 +12,7 @@ import Login from '../modules/auth/Login'
 import NotFound from '../modules/NotFound'
 import Register from "../modules/auth/Register";
 import CategoryList from "../modules/category/CategoryList";
+import EditCategory from "../modules/category/EditCategory";
 
 const router = createBrowserRouter([
     {
@@ -27,12 +28,16 @@ const router = createBrowserRouter([
                 element: <Users />,
             },
             {
-                path : '/category',
+                path: '/category',
                 element: <CategoryList />,
             },
             {
-                path : '/category/create',
+                path: '/category/create',
                 element: <AddCategory />,
+            },
+            {
+                path: '/category/edit/:id',
+                element: <EditCategory />,
             },
         ]
     },

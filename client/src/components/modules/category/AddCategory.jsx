@@ -29,7 +29,14 @@ const AddCategory = () => {
 
     const handlePhoto = (e) => {
         const file = e.target.files[0];
-        setInput((prevState) => ({ ...prevState, photo: file }));
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const base64String = event.target.result;
+                setInput((prevState) => ({ ...prevState, photo: base64String }));
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleCategoryCreate = async (e) => {
@@ -159,7 +166,7 @@ const AddCategory = () => {
                                     </div>
                                     <div className='mx-auto'>
                                         {input.photo && (
-                                            <img src={window.URL.createObjectURL(input.photo)} alt="photo" className="w-20 h-20 object-cover rounded hover:scale-105 border-blue-500" />
+                                            <img src={input.photo} alt="photo" className="w-20 h-20 object-cover rounded hover:scale-105 border-blue-500" />
                                         )}
                                     </div>
                                     <p>{errors.photo && <span className="text-red-500 text-xs">{errors.photo}</span>}</p>
@@ -178,7 +185,7 @@ const AddCategory = () => {
                                 </button>
                             }
                             {!isLoading &&
-                                <button className=" bg-blue-500 text-white p-1 px-3 font-bold text-md rounded-md" type="submit">Save</button>
+                                <button className="bg-blue-500 text-white p-1 px-3 font-bold text-md rounded-md hover:scale-105" type="submit">Save</button>
                             }
                         </div>
                     </form>
