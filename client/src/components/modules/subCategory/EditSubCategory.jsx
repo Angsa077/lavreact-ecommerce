@@ -5,9 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { RiMenuSearchLine } from 'react-icons/ri';
 import Toast from '../../partials/miniComponent/Toast';
 
-const EditCategory = () => {
+const EditSubCategory = () => {
     const [input, setInput] = useState({
         name: '',
+        category_id: '',
         slug: '',
         serial: '',
         status: 1,
@@ -18,11 +19,29 @@ const EditCategory = () => {
     const [errors, setErrors] = useState([]);
     const navigate = useNavigate();
     const params = useParams();
-    const [category, setCategory] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [subCategory, setSubCategory] = useState([]);
 
-    const getCategory = () => {
+    const getCategories = () => {
         setIsLoading(true);
-        axiosClient.get(`/category/${params.id}`)
+        axiosClient.get('/get-category-list')
+            .then(res => {
+                setCategories(res.data.data);
+                setIsLoading(false);
+            })
+            .catch(error => {
+                console.error(error);
+                setIsLoading(false);
+            });
+    }
+    
+    useEffect(() => {
+        getCategories();
+    }, []);
+
+    const getSubCategory = () => {
+        setIsLoading(true);
+        axiosClient.get(`/sub-category/${params.id}`)
             .then(res => {
                 setInput(res.data.data)
                 setIsLoading(false);
@@ -34,7 +53,7 @@ const EditCategory = () => {
     }
 
     useEffect(() => {
-        getCategory();
+        getSubCategory();
     }, []);
 
     const handlePhoto = (e) => {
@@ -59,16 +78,16 @@ const EditCategory = () => {
         setInput((prevState) => ({ ...prevState, [e.target.id]: e.target.value }));
     };
 
-    const handleCategoryUpdate = async (e) => {
+    const handleSubCategoryUpdate = async (e) => {
         setIsLoading(true);
         e.preventDefault();
         try {
-            await axiosClient.put(`/category/${params.id}`, input);
+            await axiosClient.put(`/sub-category/${params.id}`, input);
             setIsLoading(false);
-            navigate('/category')
+            navigate('/sub-category')
             Toast.fire({
                 icon: 'success',
-                title: 'Category successfully updated'
+                title: 'Sub category successfully updated'
             })
         } catch (errors) {
             setIsLoading(false);
@@ -81,20 +100,37 @@ const EditCategory = () => {
 
     return (
         <>
-            <BreadCrumb title={`Edit Category - ${input.name}`} />
+            <BreadCrumb title={`Edit Sub Category - ${input.name}`} />
             <div className='border border-slate-100 shadow-md mt-3'>
                 <div className='flex justify-between border py-1'>
-                    <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Edit Category</h2>
+                    <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Edit Sub Category</h2>
                     <button
                         className='flex items-center bg-blue-500 text-white rounded-md my-1 px-3 mr-5 gap-x-1 hover:scale-105'
-                        onClick={() => navigate('/category')}
+                        onClick={() => navigate('/sub-category')}
                     >
                         <RiMenuSearchLine size={20} />
                         <p>List</p>
                     </button>
                 </div>
-                <form onSubmit={handleCategoryUpdate}>
+                <form onSubmit={handleSubCategoryUpdate}>
                     <div className='px-8 py-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4'>
+
+                        <div className="">
+                            <label htmlFor="category_id" className="block text-gray-700">Select Category</label>
+                            <select
+                                id="category_id"
+                                value={input.category_id}
+                                onChange={handleInput}
+                                className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.category_id ? 'border-red-500' : ''}`}
+                            >
+                                <option value="" disabled>Select Category</option>
+                                {categories.map((category, index) => (
+                                    <option key={index} value={category.id}>{category.name}</option>
+                                ))}
+                            </select>
+                            <p>{errors.category_id && <span className="text-red-500 text-xs">{errors.category_id}</span>}</p>
+                        </div>
+
                         <div>
                             <label htmlFor="name" className="block text-gray-700">Name:</label>
                             <input
@@ -166,30 +202,29 @@ const EditCategory = () => {
                             />
                             <p>{errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}</p>
                         </div>
+                    </div>
 
-                        <div className="">
-                            <label htmlFor="photo" className="block text-gray-700">Photo:</label>
-                            <div className='flex'>
-                                <div className={`relative border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${input.photo ? 'w-3/4' : 'w-full'}`}>
-                                    <input
-                                        type="file"
-                                        id="photo"
-                                        onChange={handlePhoto}
-                                    />
-                                </div>
-                                <div className='mx-auto'>
-                                    {input.photo && (
-                                        <img
-                                            src={input.photo instanceof File ? window.URL.createObjectURL(input.photo) : input.photo}
-                                            alt="photo"
-                                            className="w-20 h-20 object-cover rounded hover:scale-105 border-blue-500"
-                                        />
-                                    )}
-                                </div>
-                                <p>{errors.photo && <span className="text-red-500 text-xs">{errors.photo}</span>}</p>
+                    <div className='px-8 py-4 grid grid-cols-1'>
+                        <label htmlFor="photo" className="block text-gray-700">Photo:</label>
+                        <div className='flex'>
+                            <div className={`relative border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${input.photo ? 'w-3/4' : 'w-full'}`}>
+                                <input
+                                    type="file"
+                                    id="photo"
+                                    onChange={handlePhoto}
+                                />
                             </div>
+                            <div className='mx-auto'>
+                                {input.photo && (
+                                    <img
+                                        src={input.photo instanceof File ? window.URL.createObjectURL(input.photo) : input.photo}
+                                        alt="photo"
+                                        className="w-20 h-20 object-cover rounded hover:scale-105 border-blue-500"
+                                    />
+                                )}
+                            </div>
+                            <p>{errors.photo && <span className="text-red-500 text-xs">{errors.photo}</span>}</p>
                         </div>
-
                     </div>
 
                     <div className='px-8 mb-5 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-8'>
@@ -211,4 +246,4 @@ const EditCategory = () => {
     )
 }
 
-export default EditCategory
+export default EditSubCategory

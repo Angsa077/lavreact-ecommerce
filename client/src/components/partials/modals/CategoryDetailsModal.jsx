@@ -21,6 +21,12 @@ const CategoryDetailsModal = ({ categoryDetails, onClose }) => {
                         <p className="font-semibold text-sm w-2/6">Slug</p>
                         <p className="w-4/6">{categoryDetails.slug}</p>
                     </div>
+                    {categoryDetails.category_name && (
+                        <div className="flex w-full mb-2 border bg-slate-100 hover:bg-blue-500 hover:text-white hover:scale-125 hover:rounded-lg">
+                            <p className="font-semibold text-sm w-2/6">Category</p>
+                            <p className="w-4/6">{categoryDetails.category_name}</p>
+                        </div>
+                    )}
                     <div className="flex w-full mb-2 border hover:bg-blue-500 hover:text-white hover:scale-125 hover:rounded-lg">
                         <p className="font-semibold text-sm w-2/6">Description</p>
                         <p className="w-4/6">{categoryDetails.description}</p>

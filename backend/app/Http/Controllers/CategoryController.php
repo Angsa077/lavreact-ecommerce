@@ -8,15 +8,13 @@ use App\Http\Resources\CategoryEditResource;
 use App\Http\Resources\CategoryListResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Intervention\Image\Facades\Image;
 use Exception;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index(Request $request)
     {
         $perPage = $request->input('per_page', 5);
@@ -39,9 +37,7 @@ class CategoryController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(RequestCategoryStore $request)
     {
         try {
@@ -50,7 +46,9 @@ class CategoryController extends Controller
 
             if ($request->has('photo')) {
                 $base64String = $request->input('photo');
-                $data['photo'] = $this->saveBase64Image($base64String);
+                if ($base64String) {
+                    $data['photo'] = $this->saveBase64Image($base64String, $data['name']);
+                }
             }
 
             $category = Category::create($data);
@@ -61,27 +59,37 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         $category = Category::findOrFail($id);
         return response()->json(['data' => new CategoryEditResource($category)], 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(RequestCategoryUpdate $request, string $id)
     {
         try {
             $category = Category::findOrFail($id);
             $data = $request->validated();
 
+            if (auth()->user()->id !== $category->user_id) {
+                return response()->json(['message' => 'You are not authorized to update this category'], 403);
+            }
+
             if ($request->has('photo')) {
-                $base64String = $request->input('photo');
-                $data['photo'] = $this->saveBase64Image($base64String);
+                $photoData = $request->input('photo');
+                if (filter_var($photoData, FILTER_VALIDATE_URL)) {
+                    $data['photo'] = $category->photo;
+                } else {
+                    if (!empty($category->photo)) {
+                        $fileToDelete = public_path('images/category/' . $category->photo);
+                        if (File::exists($fileToDelete)) {
+                            File::delete($fileToDelete);
+                        }
+                    }
+                    $data['photo'] = $this->saveBase64Image($photoData, $data['name']);
+                }
             }
 
             $category->update($data);
@@ -92,22 +100,31 @@ class CategoryController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Category $category)
     {
         if (!empty($category->photo)) {
-            unlink(public_path('images/category/' . $category->photo));
+            $fileToDelete = public_path('images/category/' . $category->photo);
+            if (File::exists($fileToDelete)) {
+                File::delete($fileToDelete);
+            }
         }
         $category->delete();
         return response()->json(['message' => 'Category deleted successfully'], 200);
     }
 
-    private function saveBase64Image($base64String)
+
+    public function getCategoryList()
+    {
+        $categories = Category::select('name', 'id')->get();
+        return response()->json(['data' => $categories], 200);
+    }
+
+
+    private function saveBase64Image($base64String, $imageName)
     {
         $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64String));
-        $fileName = time() . '.webp';
+        $fileName = $imageName . '.webp';
         file_put_contents(public_path('images/category/' . $fileName), $imageData);
         return $fileName;
     }

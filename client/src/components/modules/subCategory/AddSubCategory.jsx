@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BreadCrumb from '../../partials/BreadCrumb';
 import { BiCommentAdd } from 'react-icons/bi'
 import axiosClient from '../../../axios-client';
 import Toast from '../../partials/miniComponent/Toast';
 
-const AddCategory = () => {
+const AddSubCategory = () => {
     const [input, setInput] = useState({
         name: '',
+        category_id: '',
         slug: '',
         serial: '',
         status: 1,
@@ -16,6 +17,20 @@ const AddCategory = () => {
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState([]);
+    const [categories, setCategories] = useState([]);
+
+    const getCategories = () => {
+        setIsLoading(true);
+        axiosClient.get('/get-category-list')
+            .then(res => {
+                setCategories(res.data.data);
+                setIsLoading(false);
+            })
+            .catch(error => {
+                console.error(error);
+                setIsLoading(false);
+            });
+    }
 
     const handleInput = (e) => {
         if (e.target.id === 'name') {
@@ -39,15 +54,15 @@ const AddCategory = () => {
         }
     };
 
-    const handleCategoryCreate = async (e) => {
+    const handleSubCategoryCreate = async (e) => {
         e.preventDefault();
         try {
-            await axiosClient.post('/category', input);
+            await axiosClient.post('/sub-category', input);
+            setIsLoading(false)
             Toast.fire({
                 icon: 'success',
-                title: 'Category successfully added'
+                title: 'Sub category successfully added'
             })
-            setIsLoading(false)
             setIsOpenModal(false)
             setInput({
                 name: '',
@@ -57,10 +72,12 @@ const AddCategory = () => {
                 description: '',
                 photo: null,
             })
+            console.log(input)
         } catch (errors) {
             setIsLoading(false)
             if (errors.response.status == 422) {
                 setErrors(errors.response.data.errors)
+                console.log(input)
             }
         }
     };
@@ -68,12 +85,16 @@ const AddCategory = () => {
     const handleModal = () => {
         setIsOpenModal(!isOpenModal)
     }
+
+    useEffect(() => {
+        getCategories();
+    }, []);
     return (
         <>
-            <BreadCrumb title={'Add Category'} />
+            <BreadCrumb title={'Add Sub Category'} />
             <div className='border border-slate-100 shadow-md mt-3'>
                 <div className={`flex justify-between border py-1 ${isOpenModal ? 'bg-gray-50' : ''}`}>
-                    <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Add Category</h2>
+                    <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Add Sub Category</h2>
                     <button
                         className='flex items-center bg-blue-500 text-white rounded-md my-1 px-2 mr-5 gap-x-1 hover:scale-105'
                         onClick={handleModal}
@@ -83,8 +104,25 @@ const AddCategory = () => {
                     </button>
                 </div>
                 {isOpenModal && (
-                    <form onSubmit={handleCategoryCreate} >
+                    <form onSubmit={handleSubCategoryCreate} >
                         <div className='px-8 py-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4'>
+
+                            <div className="">
+                                <label htmlFor="category_id" className="block text-gray-700">Select Category</label>
+                                <select
+                                    id="category_id"
+                                    value={input.category_id}
+                                    onChange={handleInput}
+                                    className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.category_id ? 'border-red-500' : ''}`}
+                                >
+                                    <option value="" disabled>Select Category</option>
+                                    {categories.map((category, index) => (
+                                        <option key={index} value={category.id}>{category.name}</option>
+                                    ))}
+                                </select>
+                                <p>{errors.category_id && <span className="text-red-500 text-xs">{errors.category_id}</span>}</p>
+                            </div>
+
                             <div>
                                 <label htmlFor="name" className="block text-gray-700">Name:</label>
                                 <input
@@ -134,7 +172,6 @@ const AddCategory = () => {
                                     id="status"
                                     value={input.status}
                                     onChange={handleInput}
-                                    placeholder="Enter status"
                                     className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.status ? 'border-red-500' : ''}`}
                                 >
                                     <option value={1}>Active</option>
@@ -156,8 +193,9 @@ const AddCategory = () => {
                                 />
                                 <p>{errors.description && <span className="text-red-500 text-xs">{errors.description}</span>}</p>
                             </div>
-
-                            <div className="">
+                        </div>
+                        
+                        <div className='px-8 py-4 grid grid-cols-1'>
                                 <label htmlFor="photo" className="block text-gray-700">Photo:</label>
                                 <div className='flex'>
                                     <div className={`relative border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${input.photo ? 'w-3/4' : 'w-full'}`}>
@@ -175,8 +213,6 @@ const AddCategory = () => {
                                     <p>{errors.photo && <span className="text-red-500 text-xs">{errors.photo}</span>}</p>
                                 </div>
                             </div>
-
-                        </div>
 
                         <div className='px-8 mb-5 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-8'>
                             {isLoading &&
@@ -198,4 +234,4 @@ const AddCategory = () => {
     )
 }
 
-export default AddCategory
+export default AddSubCategory

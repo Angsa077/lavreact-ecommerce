@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SubCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,13 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Category
     Route::apiResource('/category', CategoryController::class);
+    Route::get('/get-category-list', [CategoryController::class, 'getCategoryList']);
+
+    // Sub Category
+    Route::apiResource('/sub-category', SubCategoryController::class);
 
     // User
     Route::get('/users', [UserController::class, 'index']);

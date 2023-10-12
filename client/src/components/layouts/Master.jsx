@@ -6,6 +6,7 @@ import { useStateContext } from "../contexts/ContextProvider";
 
 //icons
 import { FiMenu, FiBox } from 'react-icons/fi';
+import { BsBoxes } from 'react-icons/bs';
 import { LuLayoutDashboard } from 'react-icons/lu';
 import { TfiUser } from 'react-icons/tfi';
 import { IoMdArrowDropright, IoMdArrowDropdown } from 'react-icons/io';
@@ -139,8 +140,18 @@ const Master = () => {
                                 arrowDropdownRight: <IoMdArrowDropright />,
                                 arrowDropdownDown: <IoMdArrowDropdown />,
                                 submenu: [
-                                    { label: 'Category', to: '/category', icons: <FaCircle /> },
+                                    { label: 'Category List', to: '/category', icons: <FaCircle /> },
                                     { label: 'Add Category', to: '/category/create', icons: <FaCircle /> },
+                                ],
+                            },
+                            {
+                                label: 'Sub Category',
+                                icons: <BsBoxes />,
+                                arrowDropdownRight: <IoMdArrowDropright />,
+                                arrowDropdownDown: <IoMdArrowDropdown />,
+                                submenu: [
+                                    { label: 'Sub Category List', to: '/sub-category', icons: <FaCircle /> },
+                                    { label: 'Add Sub Category', to: '/sub-category/create', icons: <FaCircle /> },
                                 ],
                             },
                         ].map((item, index) => (
