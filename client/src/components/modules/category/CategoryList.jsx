@@ -8,7 +8,7 @@ import Pagination from "react-js-pagination";
 import { IoTrashBinSharp } from 'react-icons/io5'
 import { MdEdit } from 'react-icons/md'
 import { AiOutlineEye } from 'react-icons/ai'
-import CategoryPhotoModal from '../../partials/modals/CategoryPhotoModal';
+import PhotoModal from '../../partials/modals/PhotoModal';
 import CategoryDetailsModal from '../../partials/modals/CategoryDetailsModal';
 import Swal from 'sweetalert2';
 import Loader from '../../partials/miniComponent/Loader';
@@ -279,7 +279,7 @@ const CategoryList = () => {
                             </table>
 
                             {modalShow && (
-                                <CategoryPhotoModal photoUrl={modalPhoto} onClose={closeModal} />
+                                <PhotoModal photoUrl={modalPhoto} onClose={closeModal} />
                             )}
 
                             {detailsModalShow && (

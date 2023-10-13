@@ -8,8 +8,8 @@ import Pagination from "react-js-pagination";
 import { IoTrashBinSharp } from 'react-icons/io5'
 import { MdEdit } from 'react-icons/md'
 import { AiOutlineEye } from 'react-icons/ai'
-import CategoryPhotoModal from '../../partials/modals/CategoryPhotoModal';
-import CategoryDetailsModal from '../../partials/modals/CategoryDetailsModal';
+import PhotoModal from '../../partials/modals/PhotoModal';
+import BrandDetailsModal from '../../partials/modals/BrandDetailsModal';
 import Swal from 'sweetalert2';
 import Loader from '../../partials/miniComponent/Loader';
 import NoDataFound from '../../partials/miniComponent/NoDataFound';
@@ -30,7 +30,7 @@ const BrandList = () => {
     const [modalShow, setModalShow] = useState(false);
     const [modalPhoto, setModalPhoto] = useState('');
     const [detailsModalShow, setDetailsModalShow] = useState(false);
-    const [detailsCategory, setDetailsCategory] = useState(null);
+    const [detailsBrand, setDetailsBrand] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState([]);
 
@@ -59,8 +59,8 @@ const BrandList = () => {
         setModalShow(false);
     }
 
-    const handleDetailsModal = (category) => {
-        setDetailsCategory(category);
+    const handleDetailsModal = (brand) => {
+        setDetailsBrand(brand);
         setDetailsModalShow(true);
     };
     const closeDetailsModal = () => {
@@ -117,7 +117,7 @@ const BrandList = () => {
                     <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Brand</h2>
                     <div className='mx-5 hover:scale-105 block sm:hidden'>
                         <Link
-                            to='/category/create'
+                            to='/brand/create'
                             className='rounded-xl text-sm py-2 px-2 font-bold border shadow-md bg-blue-500 text-white'
                         >
                             Add New
@@ -279,12 +279,12 @@ const BrandList = () => {
                             </table>
 
                             {modalShow && (
-                                <CategoryPhotoModal photoUrl={modalPhoto} onClose={closeModal} />
+                                <PhotoModal photoUrl={modalPhoto} onClose={closeModal} />
                             )}
 
                             {detailsModalShow && (
-                                <CategoryDetailsModal
-                                    categoryDetails={detailsCategory}
+                                <BrandDetailsModal
+                                    brandDetails={detailsBrand}
                                     onClose={closeDetailsModal}
                                 />
                             )}

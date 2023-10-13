@@ -20,7 +20,6 @@ const EditSubCategory = () => {
     const navigate = useNavigate();
     const params = useParams();
     const [categories, setCategories] = useState([]);
-    const [subCategory, setSubCategory] = useState([]);
 
     const getCategories = () => {
         setIsLoading(true);

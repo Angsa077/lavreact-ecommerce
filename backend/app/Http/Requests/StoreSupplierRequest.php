@@ -3,9 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateSubCategoryRequest extends FormRequest
+class StoreSupplierRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,17 +23,14 @@ class UpdateSubCategoryRequest extends FormRequest
     {
         return [
             'name' => 'required|string|min:3|max:50',
-            'category_id' => 'required|numeric',
-            'slug' => 'required|string|unique:sub_categories,slug|min:3|max:100',
-            'slug' => [
-                'required',
-                'string',
-                'min:3',
-                'max:100',
-                Rule::unique('sub_categories', 'slug')->ignore($this->route('sub_category')),
-            ],
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|unique:suppliers,email|min:3|max:100',
             'description' => 'nullable|min:3|max:255',
-            'serial' => 'required|numeric',
+            'address' => 'nullable|min:3|max:255',
+            'districtId' => 'required|string',
+            'provinceId' => 'required|string',
+            'regencyId' => 'required|string',
+            'villageId' => 'required|string',
             'status' => 'required|numeric',
         ];
     }
