@@ -11,6 +11,8 @@ import { LuLayoutDashboard } from 'react-icons/lu';
 import { TfiUser } from 'react-icons/tfi';
 import { IoMdArrowDropright, IoMdArrowDropdown } from 'react-icons/io';
 import { FaCircle } from 'react-icons/fa';
+import { TbBrandAirtable } from 'react-icons/tb';
+import { AiOutlineShop } from 'react-icons/ai';
 
 const Master = () => {
     const { user, token, setUser, setToken } = useStateContext();
@@ -152,6 +154,26 @@ const Master = () => {
                                 submenu: [
                                     { label: 'Sub Category List', to: '/sub-category', icons: <FaCircle /> },
                                     { label: 'Add Sub Category', to: '/sub-category/create', icons: <FaCircle /> },
+                                ],
+                            },
+                            {
+                                label: 'Brand',
+                                icons: <TbBrandAirtable />,
+                                arrowDropdownRight: <IoMdArrowDropright />,
+                                arrowDropdownDown: <IoMdArrowDropdown />,
+                                submenu: [
+                                    { label: 'Brand List', to: '/brand', icons: <FaCircle /> },
+                                    { label: 'Add Brand', to: '/brand/create', icons: <FaCircle /> },
+                                ],
+                            },
+                            {
+                                label: 'Supplier',
+                                icons: <AiOutlineShop />,
+                                arrowDropdownRight: <IoMdArrowDropright />,
+                                arrowDropdownDown: <IoMdArrowDropdown />,
+                                submenu: [
+                                    { label: 'Supplier List', to: '/supplier', icons: <FaCircle /> },
+                                    { label: 'Add Supplier', to: '/supplier/create', icons: <FaCircle /> },
                                 ],
                             },
                         ].map((item, index) => (

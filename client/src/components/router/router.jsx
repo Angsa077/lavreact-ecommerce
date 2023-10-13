@@ -10,6 +10,12 @@ import EditCategory from "../modules/category/EditCategory";
 import SubCategoryList from "../modules/subCategory/SubCategoryList";
 import AddSubCategory from "../modules/subCategory/AddSubCategory";
 import EditSubCategory from "../modules/subCategory/EditSubCategory";
+import BrandList from "../modules/brand/BrandList";
+import AddBrand from "../modules/brand/AddBrand";
+import EditBrand from "../modules/brand/EditBrand";
+import SupplierList from "../modules/supplier/SupplierList";
+import AddSupplier from "../modules/supplier/AddSupplier";
+import EditSupplier from "../modules/supplier/EditSupplier";
 
 // router auth
 import AuthLayout from '../layouts/AuthLayout'
@@ -53,6 +59,30 @@ const router = createBrowserRouter([
             {
                 path: '/sub-category/edit/:id',
                 element: <EditSubCategory />,
+            },
+            {
+                path: '/brand',
+                element: <BrandList />,
+            },
+            {
+                path: '/brand/create',
+                element: <AddBrand />,
+            },
+            {
+                path: '/brand/edit/:id',
+                element: <EditBrand />,
+            },
+            {
+                path: '/supplier',
+                element: <SupplierList />,
+            },
+            {
+                path: '/supplier/create',
+                element: <AddSupplier />,
+            },
+            {
+                path: '/supplier/edit/:id',
+                element: <EditSupplier />,
             },
         ]
     },
