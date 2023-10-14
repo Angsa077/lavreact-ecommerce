@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\AttributeValueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductAttributeController;
 use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SupplierController;
 
@@ -36,4 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/sub-category', SubCategoryController::class);
     Route::apiResource('/brand', BrandController::class);
     Route::apiResource('/supplier', SupplierController::class);
+    Route::apiResource('/attribute', ProductAttributeController::class);
+    Route::apiResource('/attribute-value', AttributeValueController::class);
 });

@@ -13,6 +13,7 @@ import { IoMdArrowDropright, IoMdArrowDropdown } from 'react-icons/io';
 import { FaCircle } from 'react-icons/fa';
 import { TbBrandAirtable } from 'react-icons/tb';
 import { AiOutlineShop } from 'react-icons/ai';
+import { HiOutlineNewspaper } from 'react-icons/hi';
 
 const Master = () => {
     const { user, token, setUser, setToken } = useStateContext();
@@ -176,6 +177,7 @@ const Master = () => {
                                     { label: 'Add Supplier', to: '/supplier/create', icons: <FaCircle /> },
                                 ],
                             },
+                            { label: 'Product Attributes', to: '/attribute', icons: <HiOutlineNewspaper /> },
                         ].map((item, index) => (
                             <li
                                 key={index}
