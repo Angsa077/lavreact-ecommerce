@@ -20,16 +20,10 @@ const AddSubCategory = () => {
     const [categories, setCategories] = useState([]);
 
     const getCategories = () => {
-        setIsLoading(true);
         axiosClient.get('/get-category-list')
             .then(res => {
                 setCategories(res.data.data);
-                setIsLoading(false);
             })
-            .catch(error => {
-                console.error(error);
-                setIsLoading(false);
-            });
     }
 
     const handleInput = (e) => {

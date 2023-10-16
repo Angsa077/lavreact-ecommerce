@@ -4,8 +4,8 @@ import axiosClient from '../../../axios-client'
 import Pagination from "react-js-pagination";
 import Loader from '../../partials/miniComponent/Loader';
 import NoDataFound from '../../partials/miniComponent/NoDataFound';
-import ProductAttributesAddModal from '../../partials/modals/ProductAttributesAddModal';
-import ProductAttributesEditModal from '../../partials/modals/ProductAttributesEditModal'
+import AttributesAddModal from '../../partials/modals/AttributesAddModal';
+import AttributesEditModal from '../../partials/modals/AttributesEditModal'
 import AttributeValuesAddModal from '../../partials/modals/AttributeValuesAddModal';
 
 // icons
@@ -14,7 +14,7 @@ import { MdEdit } from 'react-icons/md'
 import Swal from 'sweetalert2';
 import AttributeValuesEditModal from '../../partials/modals/AttributeValuesEditModal';
 
-const ProductAttributes = () => {
+const Attribute = () => {
     const [input, setInput] = useState({
         search: '',
         order_by: 'name',
@@ -25,9 +25,9 @@ const ProductAttributes = () => {
     const [totalItemsCount, setTotalItemsCount] = useState(1);
     const [startFrom, setStartFrom] = useState(1);
     const [activePage, setActivePage] = useState(1);
-    const [productAttributes, setProductAttributes] = useState([]);
+    const [attributes, setAttributes] = useState([]);
     const [attributeValues, setAttributeValues] = useState([]);
-    const [productAttribute, setproductAttribute] = useState(null);
+    const [attribute, setAttribute] = useState(null);
     const [attributeValue, setAttributeValue] = useState(null);
     const [addAttributeValueModalShow, setAddAttributeValueModalShow] = useState(false)
     const [editAttributeValueModalShow, setEditAttributeValueModalShow] = useState(false)
@@ -40,11 +40,11 @@ const ProductAttributes = () => {
         setInput((prevState) => ({ ...prevState, [e.target.id]: e.target.value }));
     }
 
-    const getProductAttributes = (pageNumber = 1) => {
+    const getAttributes = (pageNumber = 1) => {
         setIsLoading(true);
         axiosClient.get(`/attribute?page=${pageNumber}&search=${input.search}&order_by=${input.order_by}&direction=${input.direction}&per_page=${input.per_page}`)
             .then(res => {
-                setProductAttributes(res.data.data);
+                setAttributes(res.data.data);
                 setItemsCountPerPage(res.data.meta.per_page);
                 setStartFrom(res.data.meta.from);
                 setTotalItemsCount(res.data.meta.total);
@@ -52,12 +52,12 @@ const ProductAttributes = () => {
                 setIsLoading(false);
             })
             .catch(error => {
-                console.error(error);
                 setIsLoading(false);
+                console.error(error);
             });
     }
 
-    const handleProductAttributesDelete = (id) => {
+    const handleAttributesDelete = (id) => {
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -76,7 +76,7 @@ const ProductAttributes = () => {
                             title: 'Deleted!',
                             text: res.data.message,
                         })
-                        getProductAttributes()
+                        getAttributes()
                         setIsLoading(false)
                     })
                     .catch(err => {
@@ -103,16 +103,16 @@ const ProductAttributes = () => {
     }
 
     useEffect(() => {
-        getProductAttributes();
+        getAttributes();
     }, []);
 
     useEffect(() => {
         getAttributeValues();
     }, []);
 
-    const handleAddAttributeValueModal = (productAttribute) => {
+    const handleAddAttributeValueModal = (attribute) => {
         setAddAttributeValueModalShow(true);
-        setproductAttribute(productAttribute);
+        setAttribute(attribute);
     };
     const closeAddAttributeValueModal = () => {
         setAddAttributeValueModalShow(false);
@@ -127,31 +127,31 @@ const ProductAttributes = () => {
         setEditAttributeValueModalShow(false);
     };
 
-    const handleAddProductAttributeModal = () => {
+    const handleAddAttributeModal = () => {
         setAddModalShow(true);
     };
-    const closeAddProductAttributeModal = () => {
+    const closeAddAttributeModal = () => {
         setAddModalShow(false);
     };
 
-    const handleEditProductAttributeModal = (productAttribute) => {
+    const handleEditAttributeModal = (attribute) => {
         setEditModalShow(true);
-        setproductAttribute(productAttribute);
+        setAttribute(attribute);
     };
 
-    const closeEditProductAttributeModal = () => {
+    const closeEditAttributeModal = () => {
         setEditModalShow(false);
     };
 
     return (
         <>
-            <BreadCrumb title={'Product Attributes'} />
+            <BreadCrumb title={'Attributes'} />
             <div className='border border-slate-100 shadow-md mt-3'>
                 <div className='flex justify-between items-center border py-1 bg-gray-50'>
-                    <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Product Attributes</h2>
+                    <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Attributes</h2>
                     <div className='mx-5 hover:scale-105 block sm:hidden'>
                         <button
-                            onClick={handleAddProductAttributeModal}
+                            onClick={handleAddAttributeModal}
                             className='rounded-xl text-sm py-2 px-2 font-bold border shadow-md bg-blue-500 text-white'
                         >
                             Add New
@@ -223,7 +223,7 @@ const ProductAttributes = () => {
                         </div>
                     </div>
                     <div className='grid grid-cols-1 mt-3 sm:mt-5 mx-5 hover:scale-105'>
-                        <button type='button' className='py-1 text-sm bg-blue-500 text-white rounded-md border border-blue-500 shadow-md font-bold' onClick={() => getProductAttributes(1)}>Search</button>
+                        <button type='button' className='py-1 text-sm bg-blue-500 text-white rounded-md border border-blue-500 shadow-md font-bold' onClick={() => getAttributes(1)}>Search</button>
                     </div>
                 </div>
 
@@ -249,22 +249,22 @@ const ProductAttributes = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {productAttributes.length === 0 ? (
+                                    {attributes.length === 0 ? (
                                         <tr>
                                             <td colSpan="7" className="text-center">
                                                 <NoDataFound />
                                             </td>
                                         </tr>
                                     ) : (
-                                        productAttributes.map((productAttribute, index) => (
+                                        attributes.map((attribute, index) => (
                                             <tr key={index} className='text-xs sm:text-sm bg-white border-b  hover:bg-gray-50'>
                                                 <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">{startFrom + index}</td>
                                                 <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2">
-                                                    <p>{productAttribute.name}</p>
+                                                    <p>{attribute.name}</p>
                                                 </td>
                                                 <td scope="col" className="text-center px-12">
                                                     {attributeValues.map((attributeValue) => (
-                                                        productAttribute.id === attributeValue.product_attribute_id && (
+                                                        attribute.id === attributeValue.attribute_id && (
                                                             <div key={attributeValue.id}>
                                                                 <button
                                                                     onClick={() => handleEditAttributeValueModal(attributeValue)}
@@ -277,34 +277,34 @@ const ProductAttributes = () => {
                                                     ))}
 
                                                     <button
-                                                        onClick={() => handleAddAttributeValueModal(productAttribute)}
+                                                        onClick={() => handleAddAttributeValueModal(attribute)}
                                                         className='bg-blue-500 px-2 text-white rounded-lg border shadow-lg hover:scale-105 my-1'
                                                     >
                                                         Add
                                                     </button>
                                                 </td>
                                                 <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
-                                                    <p className={`${productAttribute.status === 1 ? 'text-green-500' : 'text-red-500'}`}>
-                                                        {productAttribute.status === 1 ? 'Active' : 'Inactive'}
+                                                    <p className={`${attribute.status === 1 ? 'text-green-500' : 'text-red-500'}`}>
+                                                        {attribute.status === 1 ? 'Active' : 'Inactive'}
                                                     </p>
                                                 </td>
                                                 <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
-                                                    <p>{productAttribute.created_by}</p>
+                                                    <p>{attribute.created_by}</p>
                                                 </td>
                                                 <td scope="col" className="px-2 py-1 sm:px-3 sm:py-2 text-center">
-                                                    <p>{productAttribute.created_at}</p>
-                                                    <p>{productAttribute.updated_at}</p>
+                                                    <p>{attribute.created_at}</p>
+                                                    <p>{attribute.updated_at}</p>
                                                 </td>
                                                 <td scope="col" className="text-center">
                                                     <div className="flex flex-col sm:flex-row items-center justify-center">
                                                         <button
-                                                            onClick={() => handleEditProductAttributeModal(productAttribute)}
+                                                            onClick={() => handleEditAttributeModal(attribute)}
                                                             className='rounded-full bg-white shadow-md p-1 text-yellow-300 hover:scale-125 mx-1 my-1'>
                                                             <MdEdit />
                                                         </button>
                                                         <button
                                                             className='rounded-full bg-white shadow-md p-1 text-red-500 hover:scale-125 mx-1 my-1'
-                                                            onClick={() => handleProductAttributesDelete(productAttribute.id)}
+                                                            onClick={() => handleAttributesDelete(attribute.id)}
                                                         >
                                                             <IoTrashBinSharp />
                                                         </button>
@@ -319,7 +319,7 @@ const ProductAttributes = () => {
                             {addAttributeValueModalShow && (
                                 <AttributeValuesAddModal
                                     onClose={closeAddAttributeValueModal}
-                                    productAttribute={productAttribute}
+                                    attribute={attribute}
                                 />
                             )}
 
@@ -331,15 +331,15 @@ const ProductAttributes = () => {
                             )}
 
                             {addModalShow && (
-                                <ProductAttributesAddModal
-                                    onClose={closeAddProductAttributeModal}
+                                <AttributesAddModal
+                                    onClose={closeAddAttributeModal}
                                 />
                             )}
 
                             {editModalShow && (
-                                <ProductAttributesEditModal
-                                    onClose={closeEditProductAttributeModal}
-                                    productAttribute={productAttribute}
+                                <AttributesEditModal
+                                    onClose={closeEditAttributeModal}
+                                    attribute={attribute}
                                 />
                             )}
 
@@ -351,7 +351,7 @@ const ProductAttributes = () => {
                 <div className='flex justify-center sm:justify-between px-5 mb-5'>
                     <div className='hover:scale-105 hidden sm:flex'>
                         <button
-                            onClick={handleAddProductAttributeModal}
+                            onClick={handleAddAttributeModal}
                             className='rounded-xl text-sm py-2 px-2 font-bold border shadow-md bg-blue-500 text-white'>
                             Add New
                         </button>
@@ -362,7 +362,7 @@ const ProductAttributes = () => {
                             itemsCountPerPage={itemsCountPerPage}
                             totalItemsCount={totalItemsCount}
                             pageRangeDisplayed={5}
-                            onChange={getProductAttributes}
+                            onChange={getAttributes}
                             activeClass="bg-blue-500 text-white rounded-full text-center shadow-md"
                             itemClass="px-3 py-1 rounded-xl text-sm font-bold border shadow-md hover:bg-blue-500 hover:text-white border-blue-500 text-blue-500 mx-1"
                             innerClass="flex justify-between"
@@ -374,4 +374,4 @@ const ProductAttributes = () => {
     )
 }
 
-export default ProductAttributes
+export default Attribute

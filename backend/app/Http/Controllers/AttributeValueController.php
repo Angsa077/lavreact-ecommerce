@@ -6,6 +6,7 @@ use App\Models\AttributeValue;
 use App\Http\Requests\StoreAttributeValueRequest;
 use App\Http\Requests\UpdateAttributeValueRequest;
 use App\Http\Resources\AttributeValueListResource;
+use App\Http\Resources\GetAttributeValueListResource;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -14,7 +15,7 @@ class AttributeValueController extends Controller
 
     public function index()
     {
-        $attributeValues = AttributeValue::with('user', 'productAttribute')->get();
+        $attributeValues = AttributeValue::with('user', 'attribute')->get();
         return response()->json(['data' => AttributeValueListResource::collection($attributeValues)], 200);
     }
 
@@ -57,5 +58,12 @@ class AttributeValueController extends Controller
     {
         $attributeValue->delete();
         return response()->json(['message' => 'Attribute value deleted successfully'], 200);
+    }
+
+
+    public function getAttributeValueList(String $attributeId)
+    {
+        $attributeValues = AttributeValue::where('attribute_id', $attributeId)->get();
+        return response()->json(['data' => GetAttributeValueListResource::collection($attributeValues)], 200);
     }
 }

@@ -16,7 +16,8 @@ import EditBrand from "../modules/brand/EditBrand";
 import SupplierList from "../modules/supplier/SupplierList";
 import AddSupplier from "../modules/supplier/AddSupplier";
 import EditSupplier from "../modules/supplier/EditSupplier";
-import ProductAttributes from "../modules/productAttributes/ProductAttributes";
+import Attribute from "../modules/attribute/Attribute";
+import AddProduct from "../modules/product/AddProduct";
 
 // router auth
 import AuthLayout from '../layouts/AuthLayout'
@@ -87,7 +88,11 @@ const router = createBrowserRouter([
             },
             {
                 path: '/attribute',
-                element: <ProductAttributes />,
+                element: <Attribute />,
+            },
+            {
+                path: '/product/create',
+                element: <AddProduct />,
             },
         ]
     },

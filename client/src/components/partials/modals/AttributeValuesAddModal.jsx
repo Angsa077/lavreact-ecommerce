@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import axiosClient from '../../../axios-client';
 import Toast from '../miniComponent/Toast';
 
-const AttributeValuesAddModal = ({ productAttribute, onClose }) => {
+const AttributeValuesAddModal = ({ attribute, onClose }) => {
     const [input, setInput] = useState({
         name: '',
-        product_attribute_id: productAttribute ? productAttribute.id : '',
+        attribute_id: attribute ? attribute.id : '',
         status: 1,
     });
     const [errors, setErrors] = useState([]);
@@ -13,9 +13,9 @@ const AttributeValuesAddModal = ({ productAttribute, onClose }) => {
     useEffect(() => {
         setInput((prevState) => ({
             ...prevState,
-            product_attribute_id: productAttribute ? productAttribute.id : '',
+            attribute_id: attribute ? attribute.id : '',
         }));
-    }, [productAttribute]);    
+    }, [attribute]);    
 
     const handleInput = (e) => {
         setInput((prevState) => ({ ...prevState, [e.target.id]: e.target.value }));

@@ -7,6 +7,7 @@ use App\Http\Requests\StoreBrandRequest;
 use App\Http\Requests\UpdateBrandRequest;
 use App\Http\Resources\BrandEditResource;
 use App\Http\Resources\BrandListResource;
+use App\Http\Resources\GetBrandListResource;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\File;
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\Log;
 
 class BrandController extends Controller
 {
-
 
     public function index(Request $request)
     {
@@ -112,6 +112,13 @@ class BrandController extends Controller
         }
         $brand->delete();
         return response()->json(['message' => 'Brand deleted successfully'], 200);
+    }
+
+
+    public function getBrandList()
+    {
+        $brand = Brand::select('name', 'id')->get();
+        return response()->json(['data' => GetBrandListResource::collection($brand)], 200);
     }
 
 

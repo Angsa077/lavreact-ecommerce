@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SubCategory;
 use App\Http\Requests\StoreSubCategoryRequest;
 use App\Http\Requests\UpdateSubCategoryRequest;
+use App\Http\Resources\GetSubCategoryListResource;
 use App\Http\Resources\SubCategoryEditResource;
 use App\Http\Resources\SubCategoryListResource;
 use Illuminate\Support\Facades\Log;
@@ -120,5 +121,11 @@ class SubCategoryController extends Controller
         $fileName = $imageName . '.webp';
         file_put_contents(public_path('images/subcategory/' . $fileName), $imageData);
         return $fileName;
+    }
+
+    public function getSubCategoryList(String $categoryId)
+    {
+        $subCategories = SubCategory::where('category_id', $categoryId)->get();
+        return response()->json(['data' => GetSubCategoryListResource::collection($subCategories)], 200);
     }
 }

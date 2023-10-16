@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Supplier;
 use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
+use App\Http\Resources\GetSupplierListResource;
 use App\Http\Resources\SupplierEditResource;
 use App\Http\Resources\SupplierListResource;
 use Illuminate\Http\Request;
@@ -111,6 +112,12 @@ class SupplierController extends Controller
         }
         $supplier->delete();
         return response()->json(['message' => 'Supplier deleted successfully'], 200);
+    }
+
+    public function getSupplierList()
+    {
+        $supplier = Supplier::select('name', 'id')->get();
+        return response()->json(['data' => GetSupplierListResource::collection($supplier)], 200);
     }
 
 

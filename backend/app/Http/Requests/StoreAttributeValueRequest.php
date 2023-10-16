@@ -24,7 +24,7 @@ class StoreAttributeValueRequest extends FormRequest
         return [
             'name' => 'required|string|min:3|max:50',
             'status' => 'required|numeric',
-            'product_attribute_id' => 'required|numeric',
+            'attribute_id' => 'required|numeric',
         ];
     }
 }

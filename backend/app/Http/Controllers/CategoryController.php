@@ -6,6 +6,7 @@ use App\Http\Requests\RequestCategoryStore;
 use App\Http\Requests\RequestCategoryUpdate;
 use App\Http\Resources\CategoryEditResource;
 use App\Http\Resources\CategoryListResource;
+use App\Http\Resources\GetCategoryListResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Exception;
@@ -117,7 +118,7 @@ class CategoryController extends Controller
     public function getCategoryList()
     {
         $categories = Category::select('name', 'id')->get();
-        return response()->json(['data' => $categories], 200);
+        return response()->json(['data' => GetCategoryListResource::collection($categories)], 200);
     }
 
 
