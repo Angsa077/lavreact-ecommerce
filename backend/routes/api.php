@@ -27,7 +27,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get-brand-list', [BrandController::class, 'getBrandList']);
     Route::get('/get-supplier-list', [SupplierController::class, 'getSupplierList']);
     Route::get('/get-attribute-list', [AttributeController::class, 'getAttributeList']);
-    Route::get('/get-attribute-value-list/{attributeId}', [AttributeValueController::class, 'getAttributeValueList']);
 
     Route::apiResource('/category', CategoryController::class);
     Route::apiResource('/sub-category', SubCategoryController::class);

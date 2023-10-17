@@ -16,8 +16,8 @@ const AddProduct = () => {
         status: 1,
         discount_percent: 0,
         discount_price: 0,
-        discount_start: null,
-        discount_end: null,
+        discount_start: 0,
+        discount_end: 0,
         description: '',
         brand_id: '',
         sub_category_id: '',
@@ -25,10 +25,10 @@ const AddProduct = () => {
         category_id: '',
     });
 
-    const [inputProductAttribute, setInputProductAttribute] = useState({
+    const [attributeInput, setAttributeInput] = useState({
         attribute_id: '',
         attribute_value_id: '',
-    });
+    })
 
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +38,38 @@ const AddProduct = () => {
     const [brands, setBrands] = useState([]);
     const [suppliers, setSuppliers] = useState([]);
     const [attributes, setAttributes] = useState([]);
-    const [attributeValues, setAttributeValues] = useState([]);
+    const [attributeField, setAttributeField] = useState([]);
+    const [attributeFieldId, setAttributeFieldId] = useState(1);
+    const [attributeValueOptions, setAttributeValueOptions] = useState({});
+
+    const handleAttributeInput = (e, id) => {
+        setAttributeInput((prevState) => ({
+            ...prevState,
+            [id]: {
+                ...prevState[id],
+                [e.target.id]: e.target.value
+            }
+        }))
+    }
+
+    const handleAttributeFieldsRemove = (id) => {
+        setAttributeField(oldValues => {
+            return oldValues.filter(attributeField => attributeField !== id)
+        })
+        setAttributeInput(current => {
+            const copy = { ...current };
+            delete copy[id];
+            return copy;
+        })
+        setAttributeFieldId(attributeFieldId - 1)
+    }
+
+    const handleAttirbuteFieldAdd = (id) => {
+        if (attributes.length >= attributeFieldId) {
+            setAttributeFieldId(attributeFieldId + 1);
+            setAttributeField((prevState) => [...prevState, attributeFieldId]);
+        }
+    };
 
     const getCategories = () => {
         axiosClient.get('/get-category-list')
@@ -74,16 +105,12 @@ const AddProduct = () => {
         axiosClient.get('/get-attribute-list')
             .then(res => {
                 setAttributes(res.data.data);
-            })
-    }
-
-    const getAttributeValues = async (attributeId) => {
-        try {
-            const response = await axiosClient.get(`/get-attribute-value-list/${attributeId}`);
-            return response.data.data;
-        } catch (error) {
-            console.error('Error fetching attribute value:', error);
-        }
+                const valueOptions = {};
+                res.data.data.forEach(attribute => {
+                    valueOptions[attribute.id] = attribute.value || [];
+                });
+                setAttributeValueOptions(valueOptions);
+            });
     };
 
     const handleInputProduct = (e) => {
@@ -95,11 +122,6 @@ const AddProduct = () => {
         }
         setInputProduct((prevState) => ({ ...prevState, [e.target.id]: e.target.value }));
     };
-
-    const handleInputProductAttribute = (e) => {
-        setInputProductAttribute((prevState) => ({ ...prevState, [e.target.id]: e.target.value }));
-    };
-
 
     const handleProductCreate = async (e) => {
         e.preventDefault();
@@ -128,17 +150,8 @@ const AddProduct = () => {
 
     useEffect(() => {
         getCategories();
-    }, []);
-
-    useEffect(() => {
         getBrands();
-    }, []);
-
-    useEffect(() => {
         getSuppliers();
-    }, []);
-
-    useEffect(() => {
         getAttributes();
     }, []);
 
@@ -153,19 +166,6 @@ const AddProduct = () => {
                 });
         }
     }, [inputProduct.category_id]);
-
-    useEffect(() => {
-        if (inputProductAttribute.attribute_id) {
-            getAttributeValues(inputProductAttribute.attribute_id)
-                .then((data) => {
-                    setAttributeValues(data);
-                })
-                .catch((error) => {
-                    console.error('Error fetching attribute value:', error);
-                });
-        }
-    }, [inputProductAttribute.attribute_id]);
-
 
     return (
         <>
@@ -302,49 +302,67 @@ const AddProduct = () => {
                                     <h2 className='ml-3 text-lg font-semibold text-blue-500 py-2'>Select Product Attribute</h2>
                                 </div>
 
-                                <div className='px-8 py-4 '>
-                                    <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4'>
-                                        <div className="">
-                                            <label htmlFor="attribute_id" className="block text-gray-700">Select Attribute</label>
-                                            <select
-                                                id="attribute_id"
-                                                value={inputProductAttribute.attribute_id}
-                                                onChange={handleInputProductAttribute}
-                                                className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.attribute_id ? 'border-red-500' : ''}`}
-                                            >
-                                                <option value="" disabled>Select Attribute</option>
-                                                {attributes.map((attribute, index) => (
-                                                    <option key={index} value={attribute.id}>{attribute.name}</option>
-                                                ))}
-                                            </select>
+                                {attributeField.map((id, ind) => (
+  <div key={ind}>
+    <div className='px-8 py-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className="">
+          <label htmlFor='attribute_id' className="block text-gray-700">Select Attribute</label>
+          <select
+            id='attribute_id'
+            value={attributeInput[id] ? attributeInput[id].attribute_id : ''}
+            onChange={(e) => handleAttributeInput(e, id)}
+            className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.attribute_id ? 'border-red-500' : ''}`}
+          >
+            <option value="" disabled>Select Attribute</option>
+            {attributes.map((value) => (
+              <option key={value.id} value={value.id}>{value.name}</option>
+            ))}
+          </select>
+          <p>{errors.attribute_id && <span className="text-red-500 text-xs">{errors.attribute_id}</span>}</p>
+        </div>
 
-                                            <p>{errors.attribute_id && <span className="text-red-500 text-xs">{errors.attribute_id}</span>}</p>
-                                        </div>
+        <div className="">
+          <label htmlFor='attribute_value_id' className="block text-gray-700">Select Attribute Value</label>
+          <select
+            id='attribute_value_id'
+            value={attributeInput[id] ? attributeInput[id].attribute_value_id : ''}
+            onChange={(e) => handleAttributeInput(e, id)}
+            className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.attribute_value_id ? 'border-red-500' : ''}`}
+          >
+            <option value="" disabled>Select Attribute Value</option>
+            {attributeValueOptions[attributeInput[id]?.attribute_id || '']?.map((value) => (
+              <option key={value.id} value={value.id}>{value.name}</option>
+            ))}
+          </select>
+          <p>{errors.attribute_value_id && <span className="text-red-500 text-xs">{errors.attribute_value_id}</span>}</p>
+        </div>
 
-                                        <div className="">
-                                            <label htmlFor="attribute_value_id" className="block text-gray-700">Select Attribute Value</label>
-                                            <select
-                                                id="attribute_value_id"
-                                                value={inputProductAttribute.attribute_value_id}
-                                                onChange={handleInputProductAttribute}
-                                                className={`border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 ${errors.attribute_value_id ? 'border-red-500' : ''}`}
-                                            >
-                                                <option value="" disabled>Select Attribute Value</option>
-                                                {attributeValues.map((attributeValue, index) => (
-                                                    <option key={index} value={attributeValue.id}>{attributeValue.name}</option>
-                                                ))}
-                                            </select>
-                                            <p>{errors.attribute_value_id && <span className="text-red-500 text-xs">{errors.attribute_value_id}</span>}</p>
-                                        </div>
-                                    </div>
-                                    <div className='px-8 py-4 grid grid-cols-1'>
-                                        <div className='flex justify-center'>
-                                            <button
-                                                className='bg-blue-500 rounded-lg shadow-md hover:scale-105'
-                                            >
-                                                <LuPlus className='w-8 h-8 text-white' />
-                                            </button>
-                                        </div>
+        <div className="flex items-center">
+          {attributeField.length - 1 == ind ?
+            <button
+              className='bg-red-500 text-white rounded-lg p-2'
+              onClick={() => handleAttributeFieldsRemove(id)}
+            >
+              Remove
+            </button> : null
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+))}
+
+
+                                <div className='px-8 py-4 grid grid-cols-1'>
+                                    <div className='flex justify-center'>
+                                        <button
+                                            className='bg-blue-500 rounded-lg shadow-md hover:scale-105'
+                                            onClick={() => handleAttirbuteFieldAdd(attributeField[attributeField.length - 1])}
+                                        >
+                                            <LuPlus className='w-8 h-8 text-white' />
+                                        </button>
+
                                     </div>
                                 </div>
                             </div>

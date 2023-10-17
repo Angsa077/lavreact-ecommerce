@@ -6,7 +6,6 @@ use App\Models\Attribute;
 use App\Http\Requests\StoreAttributeRequest;
 use App\Http\Requests\UpdateAttributeRequest;
 use App\Http\Resources\AttributeListResource;
-use App\Http\Resources\GetAttributeListResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -72,9 +71,9 @@ class AttributeController extends Controller
 
     public function getAttributeList()
     {
-        $attributes = Attribute::select('name', 'id')->get();
-        return response()->json(['data' => GetAttributeListResource::collection($attributes)], 200);
-    }
+        $attributes = Attribute::select('name', 'id')->with('value:id,name,attribute_id')->get();
+        return response()->json(['message' => 'Attribute successfully fetched', 'data' => $attributes], 200);
+    }    
 
     
     public function destroy(Attribute $attribute)

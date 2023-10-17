@@ -22,7 +22,8 @@ class StoreProductAttributeRequest extends FormRequest
     public function rules(): array
     {
         return [
-
+            'attribute_id' => 'required|numeric',
+            'attribute_value_id' => 'required|numeric',
         ];
     }
 }

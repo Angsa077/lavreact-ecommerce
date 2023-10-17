@@ -59,11 +59,4 @@ class AttributeValueController extends Controller
         $attributeValue->delete();
         return response()->json(['message' => 'Attribute value deleted successfully'], 200);
     }
-
-
-    public function getAttributeValueList(String $attributeId)
-    {
-        $attributeValues = AttributeValue::where('attribute_id', $attributeId)->get();
-        return response()->json(['data' => GetAttributeValueListResource::collection($attributeValues)], 200);
-    }
 }
