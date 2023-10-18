@@ -1,15 +1,18 @@
 <?php
 
-use App\Http\Controllers\AttributeController;
-use App\Http\Controllers\AttributeValueController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\AttributeController;
+use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\AttributeValueController;
+use App\Http\Controllers\ProductAttributeController;
+use App\Http\Controllers\ProductSpecificationController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -34,4 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/supplier', SupplierController::class);
     Route::apiResource('/attribute', AttributeController::class);
     Route::apiResource('/attribute-value', AttributeValueController::class);
+    Route::apiResource('/product', ProductController::class);
+    Route::apiResource('/product-attribute', ProductAttributeController::class);
+    Route::apiResource('/product-specification', ProductSpecificationController::class);
 });
