@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Http\Requests\UpdateProductRequest;
+use Illuminate\Http\Request;
 use App\Models\ProductAttribute;
 use App\Models\ProductSpecification;
-use Illuminate\Http\Request;
+use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
@@ -17,11 +17,11 @@ class ProductController extends Controller
     }
 
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $requestData = $request->input();
         $inputProduct = $requestData['inputProduct'];
-    
-        // Create the main product record
+
         $productData = [
             'name' => $inputProduct['name'],
             'slug' => $inputProduct['slug'],
@@ -42,42 +42,39 @@ class ProductController extends Controller
             'created_by_id' => auth()->user()->id,
             'updated_by_id' => auth()->user()->id,
         ];
-    
+
         $product = Product::create($productData);
-    
-            // Create product attributes
-    if (isset($requestData['attributeInput'])) {
-        $attributeInput = $requestData['attributeInput'];
-        foreach ($attributeInput as $attribute) {
-            if (!empty($attribute['attribute_id']) && !empty($attribute['attribute_value_id'])) {
-                $productAttributeData = [
-                    'product_id' => $product->id,
-                    'attribute_id' => $attribute['attribute_id'],
-                    'attribute_value_id' => $attribute['attribute_value_id'],
-                ];
-                ProductAttribute::create($productAttributeData);
+        if (isset($requestData['attributeInput'])) {
+            $attributeInput = $requestData['attributeInput'];
+            foreach ($attributeInput as $attribute) {
+                if (!empty($attribute['attribute_id']) && !empty($attribute['attribute_value_id'])) {
+                    $productAttributeData = [
+                        'product_id' => $product->id,
+                        'attribute_id' => $attribute['attribute_id'],
+                        'attribute_value_id' => $attribute['attribute_value_id'],
+                    ];
+                    ProductAttribute::create($productAttributeData);
+                }
             }
         }
+
+        if (isset($requestData['specificationInput'])) {
+            $specificationInput = $requestData['specificationInput'];
+            foreach ($specificationInput as $specification) {
+                if (!empty($specification['name_specification']) && !empty($specification['value_specification'])) {
+                    $productSpecificationData = [
+                        'product_id' => $product->id,
+                        'name' => $specification['name_specification'],
+                        'value' => $specification['value_specification'],
+                    ];
+                    ProductSpecification::create($productSpecificationData);
+                }
+            }
+        }
+
+        return response()->json(['message' => 'Produk berhasil disimpan', 'data' => $product], 201);
     }
 
-    // Create product specifications
-    if (isset($requestData['specificationInput'])) {
-        $specificationInput = $requestData['specificationInput'];
-        foreach ($specificationInput as $specification) {
-            if (!empty($specification['name_specification']) && !empty($specification['value_specification'])) {
-                $productSpecificationData = [
-                    'product_id' => $product->id,
-                    'name' => $specification['name_specification'],
-                    'value' => $specification['value_specification'],
-                ];
-                ProductSpecification::create($productSpecificationData);
-            }
-        }
-    }
-    
-        return response()->json(['message' => 'Produk berhasil disimpan'], 201);
-    }
-    
 
     /**
      * Display the specified resource.

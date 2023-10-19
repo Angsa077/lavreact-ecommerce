@@ -4,16 +4,16 @@ import { BiCommentAdd } from 'react-icons/bi'
 import axiosClient from '../../../axios-client';
 import Toast from '../../partials/miniComponent/Toast';
 import { LuPlus } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 const AddProduct = () => {
     const [inputProduct, setInputProduct] = useState({
-        name: '', slug: '', sku: '', cost: 0, price: 0, stock: 0, status: 1, discount_percent: 0, discount_fixed: 0,
+        name: '', slug: '', sku: '', cost: '', price: '', stock: '', status: 1, discount_percent: '', discount_fixed: '',
         discount_start: '', discount_end: '', description: '', brand_id: '', sub_category_id: '', supplier_id: '', category_id: '',
     });
 
     const [attributeInput, setAttributeInput] = useState([])
     const [specificationInput, setSpecificationInput] = useState({});
-
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -27,6 +27,7 @@ const AddProduct = () => {
     const [attributeValueOptions, setAttributeValueOptions] = useState({});
     const [specificationField, setSpecificationField] = useState([]);
     const [specificationFieldId, setSpecificationFieldId] = useState(1);
+    const navigate = useNavigate();
 
     const handleSpecificationInput = (e, id) => {
         setSpecificationInput((prevSpecInput) => ({
@@ -136,7 +137,7 @@ const AddProduct = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await axiosClient.post('/product', {
+            const response = await axiosClient.post('/product', {
                 inputProduct,
                 attributeInput,
                 specificationInput
@@ -144,9 +145,10 @@ const AddProduct = () => {
             setIsLoading(false);
             Toast.fire({
                 icon: 'success',
-                title: 'Sub product successfully added'
+                title: 'Product successfully added'
             });
-            setIsOpenModal(false);
+            const newProductId = response.data.data.id
+            navigate(`/product/photo/${newProductId}`);
         } catch (error) {
             setIsLoading(false);
             if (error.response.status === 422) {

@@ -20,15 +20,7 @@ class ProductAttributeController extends Controller
 
     public function store(StoreProductAttributeRequest $request)
     {
-        try {
-            $data = $request->validated();
-            $data['product_id '] = $request->input('product_id');
-            $productAttribute = ProductAttribute::create($data);
-            return response()->json(['message' => 'Product attribute created successfully', 'data' => $productAttribute], 201);
-        } catch (Exception $e) {
-            Log::error('Error creating product attribute: ' . $e->getMessage());
-            return response()->json(['message' => 'Error creating product attribute'], 500);
-        }
+
     }
 
 
