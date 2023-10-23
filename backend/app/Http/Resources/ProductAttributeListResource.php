@@ -15,7 +15,9 @@ class ProductAttributeListResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-
+            'id' => $this->id,
+            'name' => $this->attributes?->name,
+            'value' => $this->attributes_value?->value,
         ];
     }
 }

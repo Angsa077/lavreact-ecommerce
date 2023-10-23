@@ -7,15 +7,36 @@ use Illuminate\Http\Request;
 use App\Models\ProductAttribute;
 use App\Models\ProductSpecification;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Resources\ProductListResource;
+use App\Models\ProductPhoto;
+use Exception;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $perPage = $request->input('per_page', 5);
+        $search = $request->input('search', '');
+        $order_by = $request->input('order_by', 'name');
+        $direction = $request->input('direction', 'asc');
+        $products = Product::where('name', 'like', '%' . $search . '%')
+            ->with('product_attributes', 'specification', 'productPhoto')
+            ->orderBy($order_by, $direction)
+            ->paginate($perPage);
 
+        return response()->json([
+            'data' => ProductListResource::collection($products->items()),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+                'from' => $products->firstItem(),
+            ],
+        ], 200);
+    }
 
     public function store(Request $request)
     {
@@ -76,35 +97,38 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Product $product)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function edit(Product $product)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(UpdateProductRequest $request, Product $product)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Product $product)
     {
-        //
+
+        $photoData = ProductPhoto::where('product_id', $product->id);
+
+        if (!empty($photoData)) {
+            $fileToDelete = public_path('images/product/' . $product->photo);
+            if (File::exists($fileToDelete)) {
+                File::delete($fileToDelete);
+                $photoData->delete();
+            }
+        }
+        $product->delete();
+        return response()->json(['message' => 'Product deleted successfully'], 200);
     }
 }
